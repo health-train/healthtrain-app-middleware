@@ -12,11 +12,6 @@ class VideosController extends AbstractController
     {
         return $this->render('videos/tools_embed.html.twig');
     }
-
-    public function tools_video(): Response
-    {
-        return $this->redirectToRoute('video_tools_embed');
-    }
     
     public function embed_sproutvideo(string $video_id, string $key_id): Response
     {

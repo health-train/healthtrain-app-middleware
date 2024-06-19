@@ -20,17 +20,6 @@ video_tools_embed:
     defaults:
         host: 'healthtrain.app'
 
-video_tools_video_legacy:
-    path:       /tools/video/
-    controller: App\Controller\VideosController::tools_video
-    methods:    GET|HEAD
-    host: '{subdomain}.{host}'
-    requirements:
-        subdomain: 'videos'
-        host: 'healthtrain.wip|healthtrain.app'
-    defaults:
-        host: 'healthtrain.app'
-
 video_embed_sproutvideo:
     path:       /embed/sv/{video_id}/{key_id}/
     controller: App\Controller\VideosController::embed_sproutvideo

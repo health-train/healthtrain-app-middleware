@@ -1,4 +1,4 @@
-# HealthTrain video
+# healthtrain.app redirects
 
 Simple Symfony application for internal tools and redirects to other services.
 

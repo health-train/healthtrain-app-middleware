@@ -1,0 +1,109 @@
+controllers:
+    resource:
+        path: ../src/Controller/
+        namespace: App\Controller
+    type: attribute
+
+index:
+    path:       /
+    controller: App\Controller\DefaultController::index
+    methods:    GET|HEAD
+
+video_tools_embed:
+    path:       /tools/embed/
+    controller: App\Controller\VideosController::tools_embed
+    methods:    GET|HEAD
+    host: '{subdomain}.{host}'
+    requirements:
+        subdomain: 'videos'
+        host: 'healthtrain.wip|healthtrain.app'
+    defaults:
+        host: 'healthtrain.app'
+
+video_tools_video_legacy:
+    path:       /tools/video/
+    controller: App\Controller\VideosController::tools_video
+    methods:    GET|HEAD
+    host: '{subdomain}.{host}'
+    requirements:
+        subdomain: 'videos'
+        host: 'healthtrain.wip|healthtrain.app'
+    defaults:
+        host: 'healthtrain.app'
+
+video_embed_sproutvideo:
+    path:       /embed/sv/{video_id}/{key_id}/
+    controller: App\Controller\VideosController::embed_sproutvideo
+    methods:    GET|HEAD
+    host: '{subdomain}.{host}'
+    requirements:
+        subdomain: 'videos'
+        host: 'healthtrain.wip|healthtrain.app'
+    defaults:
+        host: 'healthtrain.app'
+
+invite_ht_prod:
+    path:       /i/{invitationId}/{userOrganisationConnectionId}/
+    controller: App\Controller\InviteController::invite_ht_prod
+    methods:    GET|HEAD
+    host: '{subdomain}.{host}'
+    requirements:
+        subdomain: 'invite|i'
+        host: 'healthtrain.wip|healthtrain.app'
+    defaults:
+        host: 'healthtrain.app'
+
+invite_ht_at:
+    path:       /ht_at/{invitationId}/{userOrganisationConnectionId}/
+    controller: App\Controller\InviteController::invite_ht_at
+    methods:    GET|HEAD
+    host: '{subdomain}.{host}'
+    requirements:
+        subdomain: 'invite|i'
+        host: 'healthtrain.wip|healthtrain.app'
+    defaults:
+        host: 'healthtrain.app'
+
+invite_ht_it:
+    path:       /ht_it/{invitationId}/{userOrganisationConnectionId}/
+    controller: App\Controller\InviteController::invite_ht_it
+    methods:    GET|HEAD
+    host: '{subdomain}.{host}'
+    requirements:
+        subdomain: 'invite|i'
+        host: 'healthtrain.wip|healthtrain.app'
+    defaults:
+        host: 'healthtrain.app'
+
+invite_htger_prod:
+    path:       /ig/{invitationId}/{userOrganisationConnectionId}/
+    controller: App\Controller\InviteController::invite_htger_prod
+    methods:    GET|HEAD
+    host: '{subdomain}.{host}'
+    requirements:
+        subdomain: 'invite|i'
+        host: 'healthtrain.wip|healthtrain.app'
+    defaults:
+        host: 'healthtrain.app'
+
+invite_htger_prod_legacy:
+    path:       /Invite/{invitationId}/{userOrganisationConnectionId}/
+    controller: App\Controller\InviteController::invite_htger_prod
+    methods:    GET|HEAD
+    host: '{subdomain}.{host}'
+    requirements:
+        subdomain: 'invite|i'
+        host: 'healthtrain.wip|healthtrain.app'
+    defaults:
+        host: 'healthtrain.app'
+
+invite_htger_at:
+    path:       /htger_at/{invitationId}/{userOrganisationConnectionId}/
+    controller: App\Controller\InviteController::invite_htger_at
+    methods:    GET|HEAD
+    host: '{subdomain}.{host}'
+    requirements:
+        subdomain: 'invite|i'
+        host: 'healthtrain.wip|healthtrain.app'
+    defaults:
+        host: 'healthtrain.app'

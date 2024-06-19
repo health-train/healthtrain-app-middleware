@@ -1,0 +1,142 @@
+{% extends "layout/base.html.twig" %}
+
+{% block title %}HealthTrain video embed tools{% endblock %}
+
+{% block content %}
+	<main>
+		<p>Paste Sproutvideo inline embed code here:</p>
+		<textarea id="embedCode"></textarea>
+        <p class="error"></p>
+		<div>
+			<p>
+				<strong>Sproutvideo URL</strong><br>
+				<input type="text" id="svUrl" disabled>
+				<button onclick="copyUrl('svUrl')">Copy</button>
+			</p>
+			<p>
+				<strong>HealthTrain embed</strong><br>
+				<input type="text" id="htUrl" disabled>
+				<button onclick="copyUrl('htUrl')">Copy</button>
+			</p>
+			{% if app.environment == "dev" %}
+            <p>
+				<strong>HealthTrain dev embed</strong><br>
+				<input type="text" id="htDebugUrl" disabled>
+				<button onclick="copyUrl('htDebugUrl')">Copy</button>
+			</p>
+			{% endif %}
+			<p>
+				VID:
+				<span id="vid"></span><br>
+				KID:
+				<span id="kid"></span>
+			</p>
+		</div>
+	</main>
+{% endblock %}
+
+{% block script %}
+	<script>
+
+(() => {
+
+    typeof window !== 'undefined' && document.addEventListener('DOMContentLoaded', function () {
+    const embedCode = document.getElementById("embedCode");
+    const errorMessage = document.querySelector(".error");
+    const sproutvideoUrl = document.getElementById("svUrl");
+    const healthtrainUrl = document.getElementById("htUrl");
+    const vid = document.getElementById("vid");
+    const kid = document.getElementById("kid");
+	{% if app.environment == "dev" %}
+    const healthtrainDebugUrl = document.getElementById("htDebugUrl");
+	{% endif %}
+
+
+    embedCode.addEventListener("change", (event) => {
+        const embedContent = embedCode.value;
+        const regex = new RegExp('\\/\\/videos\\.sproutvideo\\.com\\/embed\\/([a-z0-9]+)\\/([a-z0-9]+)', 'gm');
+        
+        if(matches = regex.exec(embedContent)) {
+            const match_vidUrl = matches[0];
+            const match_vid = matches[1];
+            const match_kid = matches[2];
+
+            sproutvideoUrl.value = "https:" + match_vidUrl;
+            healthtrainUrl.value = "https://videos.healthtrain.app/embed/sv/"+match_vid+"/"+match_kid+"/";
+            vid.textContent = matches[1];
+            kid.textContent = matches[2];
+
+			{% if app.environment == "dev" %}
+            healthtrainDebugUrl.value = "http://localhost:8000/embed/sv/"+match_vid+"/"+match_kid+"/";
+			{% endif %}
+
+        } else {
+            errorMessage.textContent = "Error: Can't match url from embed code"
+        }
+
+
+    });
+
+})})();
+
+    function copyUrl(target) {
+        navigator.clipboard.writeText(document.getElementById(target).value).then((success) => console.log("text copied"), (err) => console.log("error copying text"));
+    };
+
+</script>
+{% endblock %}
+
+{% block style %}<style>
+html,
+body {
+	background: #f4fbff none;
+	font: 18px sans-serif;
+}
+
+main {
+	margin: auto;
+	padding: 1rem;
+	max-width: calc(100% - 2rem);
+	font-size: 20px;
+	line-height: 1.6;
+}
+
+textarea {
+	width: 40em;
+	height: 200px;
+	padding: 8px;
+	background-color: #fff;
+	border: 1px solid #51ABFD;
+	border-radius: 10px;
+}
+
+input {
+	background-color: #fff;
+	width: 50em;
+	padding: 8px;
+	font-size: 16px;
+	border: 1px solid #51ABFD;
+	border-radius: 10px;
+}
+
+button {
+	color: white;
+	background-color: #5AD2B4;
+	border: 0;
+	padding: 10px 16px;
+}
+
+button:hover {
+	background-color: #0DA190;
+	cursor: pointer;
+}
+
+button:active {
+	background-color: black;
+}
+
+.error {
+    color: #884433;
+}
+
+</style>{% endblock %}

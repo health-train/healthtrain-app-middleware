@@ -14,6 +14,11 @@
 				<button onclick="copyUrl('svUrl')">Copy</button>
 			</p>
 			<p>
+				<strong>AfsprakenApp embed</strong><br>
+				<input type="text" id="aaUrl" disabled>
+				<button onclick="copyUrl('aaUrl')">Copy</button>
+			</p>
+			<p>
 				<strong>HealthTrain embed</strong><br>
 				<input type="text" id="htUrl" disabled>
 				<button onclick="copyUrl('htUrl')">Copy</button>
@@ -44,6 +49,7 @@
     const embedCode = document.getElementById("embedCode");
     const errorMessage = document.querySelector(".error");
     const sproutvideoUrl = document.getElementById("svUrl");
+    const afsprakenUrl = document.getElementById("aaUrl");
     const healthtrainUrl = document.getElementById("htUrl");
     const vid = document.getElementById("vid");
     const kid = document.getElementById("kid");
@@ -63,6 +69,7 @@
 
             sproutvideoUrl.value = "https:" + match_vidUrl;
             healthtrainUrl.value = "https://videos.healthtrain.app/embed/sv/"+match_vid+"/"+match_kid+"/";
+            afsprakenUrl.value = "https://mobiel.afsprakenapp.nl/hwo/v6/video.php?vid="+match_vid+"&kid="+match_kid;
             vid.textContent = matches[1];
             kid.textContent = matches[2];
 
@@ -80,6 +87,7 @@
 })})();
 
     function copyUrl(target) {
+		console.log(target);
         navigator.clipboard.writeText(document.getElementById(target).value).then((success) => console.log("text copied"), (err) => console.log("error copying text"));
     };
 

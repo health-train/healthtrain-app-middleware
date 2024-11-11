@@ -1,0 +1,110 @@
+{% extends "layout/base.html.twig" %}
+
+{% block title %}HealthTrain - Aanbod{% endblock %}
+
+{% block content %}
+	<div class="bg-white py-24 sm:py-32">
+		<div class="mx-auto max-w-7xl px-6 lg:px-8">
+			<div class="mx-auto max-w-4xl sm:text-center">
+				{% if testmode %}
+				<span class="inline-flex items-center rounded-md bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">Testmodus</span>
+				{% endif %}
+				<h2 class="text-pretty text-5xl font-semibold tracking-tight text-gray-900 sm:text-balance sm:text-6xl">Direct aan de slag met HealthTrain Platform</h2>
+				<p class="mx-auto mt-6 max-w-2xl text-pretty text-lg font-medium text-gray-500 sm:text-xl/8">Geef je cliënten moderne ondersteuning tijdens hun traject, terwijl jij focust op behandelen.</p>
+				<div class="mt-10 flex items-center gap-x-4">
+					<h4 class="text-sm/6 font-semibold text-indigo-600">Tijdelijk introductieaanbod (geldig tot 1 december 2024)</h4>
+					<div class="h-px flex-auto bg-gray-100"></div>
+				</div>
+				<ul role="list" class="mt-8 grid grid-cols-1 gap-4 text-sm/6 text-gray-600 sm:grid-cols-2 sm:gap-6">
+					<li class="flex gap-x-3">
+						<svg class="h-6 w-5 flex-none text-indigo-600" viewbox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+							<path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/>
+						</svg>
+						Start nu en probeer HealthTrain 30 dagen gratis. Daarna zit je nergens aan vast en kun je elk maand opzeggen.
+					</li>
+					<li class="flex gap-x-3">
+						<svg class="h-6 w-5 flex-none text-indigo-600" viewbox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+							<path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/>
+						</svg>
+						<span>Ontvang gratis ondersteuning van onze productspecialisten bij ingebruikname van HealthTrain in jouw praktijk. Een besparing van
+							<span class="font-bold">€1.800,00</span>!</span>
+					</li>
+				</ul>
+			</div>
+			<div class="mx-auto mt-16 max-w-2xl rounded-3xl ring-1 ring-gray-200 sm:mt-20 lg:mx-0 lg:flex lg:max-w-none">
+				<div class="p-8 sm:p-10 lg:flex-auto">
+					<h3 class="text-3xl font-semibold tracking-tight text-gray-900">HealthTrain Platform</h3>
+					<h4 class="text-lg font-regular tracking-tight text-gray-500">geïntegreerd met SpotOnMedics FysioOne</h4>
+					<div class="mt-10 flex items-center gap-x-4">
+						<h4 class="flex-none text-sm/6 font-semibold text-indigo-600">Inclusief</h4>
+						<div class="h-px flex-auto bg-gray-100"></div>
+					</div>
+					<ul role="list" class="mt-8 grid grid-cols-1 gap-4 text-sm/6 text-gray-600 sm:grid-cols-2 sm:gap-6">
+						<li class="flex gap-x-3">
+							<svg class="h-6 w-5 flex-none text-indigo-600" viewbox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+								<path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/>
+							</svg>
+							No-show reductie door slimme afspraakherinneringen en -bevestigingen
+						</li>
+						<li class="flex gap-x-3">
+							<svg class="h-6 w-5 flex-none text-indigo-600" viewbox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+								<path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/>
+							</svg>
+							Oefeningencontent met hoge kwaliteit videoinstructies.
+						</li>
+						<li class="flex gap-x-3">
+							<svg class="h-6 w-5 flex-none text-indigo-600" viewbox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+								<path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/>
+							</svg>
+							Toegang tot HealthTrain App (voor cliënten en therapeuten) en HealthTrain Portal (voor therapeuten)
+						</li>
+						<li class="flex gap-x-3">
+							<svg class="h-6 w-5 flex-none text-indigo-600" viewbox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+								<path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/>
+							</svg>
+							Onbeperkt aantal cliënten, afspraken en oefenprogramma's
+						</li>
+
+						<li class="flex gap-x-3">
+							<svg class="h-6 w-5 flex-none text-indigo-600" viewbox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+								<path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/>
+							</svg>
+							Alle afspraken in je broekzak, zowel voor je cliënten als therapeuten
+						</li>
+						<li class="flex gap-x-3">
+							<svg class="h-6 w-5 flex-none text-indigo-600" viewbox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+								<path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/>
+							</svg>
+							Een visitekaartje van je praktijk in HealthTrain app. Communiceer je praktijkgegevens, openingstijden en contactgevens met je cliënten.
+						</li>
+					</ul>
+				</div>
+				<div class="-mt-2 p-2 lg:mt-0 lg:w-full lg:max-w-md lg:shrink-0">
+					<div class="rounded-2xl bg-gray-50 py-10 ring-1 ring-inset ring-gray-900/5 lg:flex lg:flex-col lg:justify-center lg:py-16">
+						<div class="mx-auto max-w-xs px-8 text-center">
+							<p class="text-base font-semibold text-gray-600">Start nu gratis met HealthTrain Platform</p>
+							<p class="mt-5 flex items-baseline justify-center gap-x-2">
+								<span class="text-3xl font-semibold tracking-tight text-gray-900">€20,20</span>
+								<span class="text-sm/6 font-semibold tracking-wide text-gray-600">/therapeut/maand</span>
+							</p>
+						</div>
+						<div class="mx-auto max-w-xs px-8">
+							<form action="/session/create" method="POST" class="mt-6">
+							
+								{% if testmode %}
+								<input type="hidden" name="testmode" value="true"/>
+								<input type="hidden" name="priceId" value="price_1QD4l5AU7J6SUXutqQV2xIkg"/>
+								{% else %}
+								{% endif %}
+								<label for="licenses_quantity" class="block text-sm/6 font-medium text-gray-900">Aantal licenties:</label>
+								<input type="number" name="quantity" id="licenses_quantity" value="1" min="1" max="75" class="block w-full rounded-none rounded-l-md border-0 py-1.5 px-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6">
+								<button class="mt-5 block w-full rounded-md bg-indigo-600 px-4 py-4 text-center text-md font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Start nu gratis</button>
+							</form>
+							<p class="mt-6 text-xs/5 text-gray-600">Niet tevreden? Je kunt op elk moment opzeggen.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

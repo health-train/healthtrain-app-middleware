@@ -3,148 +3,118 @@
 {% block title %}HealthTrain video embed tools{% endblock %}
 
 {% block content %}
-	<main>
-		<p>Paste Sproutvideo inline embed code here:</p>
-		<textarea id="embedCode"></textarea>
-        <p class="error"></p>
-		<div>
-			<p>
-				<strong>Sproutvideo URL</strong><br>
-				<input type="text" id="svUrl" disabled>
-				<button onclick="copyUrl('svUrl')">Copy</button>
-			</p>
-			<p>
-				<strong>AfsprakenApp embed</strong><br>
-				<input type="text" id="aaUrl" disabled>
-				<button onclick="copyUrl('aaUrl')">Copy</button>
-			</p>
-			<p>
-				<strong>HealthTrain embed</strong><br>
-				<input type="text" id="htUrl" disabled>
-				<button onclick="copyUrl('htUrl')">Copy</button>
-			</p>
-			{% if app.environment == "dev" %}
-            <p>
-				<strong>HealthTrain dev embed</strong><br>
-				<input type="text" id="htDebugUrl" disabled>
-				<button onclick="copyUrl('htDebugUrl')">Copy</button>
-			</p>
-			{% endif %}
-			<p>
-				VID:
-				<span id="vid"></span><br>
-				KID:
-				<span id="kid"></span>
-			</p>
+
+	<div class="space-y-12">
+
+		<div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+			<div class="col-span-4">
+				<h2 class="text-2xl/7 font-bold text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">HealthTrain video embed tool</h2>
+				<p class="mt-1 text-sm/6 text-gray-600">Zet een Sproutvideo embed code om in een embed URL voor intern gebruik binnen HealthTrain.</p>
+			</div>
+			<div class="overflow-hidden rounded-md bg-white shadow col-span-4">
+				<div class="px-4 py-5 sm:p-6">
+					<label for="embedCode" class="block text-sm/6 font-medium text-gray-900">Sproutvideo inline embed code:</label>
+					<div class="mt-2">
+						<textarea id="embedCode" name="embedcode" rows="5" class="select-all block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6" onfocus="this.select()"></textarea>
+					</div>
+					<p class="mt-3 text-sm/6 text-gray-600">Plak de Sproutvideo inline embed code hierboven</p>
+					<p class="mt-2 text-sm text-red-600" id="error"></p>
+				</div>
+			</div>
+			<div class="overflow-hidden rounded-md bg-white shadow col-span-6">
+				<ul role="list" class="divide-y divide-gray-200">
+					<li class="px-6 py-4">
+						<label for="svUrl" class="block text-sm/6 font-medium text-gray-900">Sproutvideo Embed URL</label>
+						<div class="mt-2 flex rounded-md shadow-sm">
+							<input type="text" name="svUrl" id="svUrl" class="select-all block w-full rounded-none rounded-l-md border-0 py-1.5 pl-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6" onfocus="this.select()" readonly>
+							<button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 active:bg-blue-600 active:text-white" onclick="copyUrl('svUrl')">Copy</button>
+						</div>
+					</li>
+					<li class="px-6 py-4">
+						<label for="aaUrl" class="block text-sm/6 font-medium text-gray-900">AfsprakenApp Embed URL</label>
+						<div class="mt-2 flex rounded-md shadow-sm">
+							<input type="text" name="aaUrl" id="aaUrl" class="select-all block w-full rounded-none rounded-l-md border-0 py-1.5 pl-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6" onfocus="this.select()" readonly>
+							<button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 active:bg-blue-600 active:text-white" onclick="copyUrl('svUrl')">Copy</button>
+						</div>
+					</li>
+					<li class="px-6 py-4">
+						<label for="htUrl" class="block text-sm/6 font-medium text-gray-900">HealthTrain Embed URL</label>
+						<div class="mt-2 flex rounded-md shadow-sm">
+							<input type="text" name="htUrl" id="htUrl" class="select-all block w-full rounded-none rounded-l-md border-0 py-1.5 pl-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6" onfocus="this.select()" readonly>
+							<button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 active:bg-blue-600 active:text-white" onclick="copyUrl('svUrl')">Copy</button>
+						</div>
+					</li>
+					{% if app.environment == "dev" %}
+						<li class="px-6 py-4">
+							<label for="htDebugUrl" class="block text-sm/6 font-medium text-gray-900">HealthTrain Dev Embed URL</label>
+							<div class="mt-2 flex rounded-md shadow-sm">
+								<input type="text" name="htDebugUrl" id="htDebugUrl" class="select-all block w-full rounded-none rounded-l-md border-0 py-1.5 pl-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6" onfocus="this.select()" readonly>
+								<button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 active:bg-blue-600 active:text-white" onclick="copyUrl('svUrl')">Copy</button>
+							</div>
+						</li>
+
+						<li class="px-6 py-4">
+							<p>
+								<strong>VID</strong>
+								<pre id="vid"></pre>
+							</p>
+							<p>
+								<strong>KID</strong>
+								<pre id="kid"></pre>
+							</p>
+						</li>
+					{% endif %}
+				</ul>
+			</div>
 		</div>
-	</main>
+	</div>
 {% endblock %}
 
 {% block script %}
 	<script>
 
-(() => {
+		(() => {
 
-    typeof window !== 'undefined' && document.addEventListener('DOMContentLoaded', function () {
-    const embedCode = document.getElementById("embedCode");
-    const errorMessage = document.querySelector(".error");
-    const sproutvideoUrl = document.getElementById("svUrl");
-    const afsprakenUrl = document.getElementById("aaUrl");
-    const healthtrainUrl = document.getElementById("htUrl");
-    const vid = document.getElementById("vid");
-    const kid = document.getElementById("kid");
-	{% if app.environment == "dev" %}
-    const healthtrainDebugUrl = document.getElementById("htDebugUrl");
-	{% endif %}
+typeof window !== 'undefined' && document.addEventListener('DOMContentLoaded', function () {
+const embedCode = document.getElementById("embedCode");
+const errorMessage = document.getElementById("error");
+const sproutvideoUrl = document.getElementById("svUrl");
+const afsprakenUrl = document.getElementById("aaUrl");
+const healthtrainUrl = document.getElementById("htUrl");
+const vid = document.getElementById("vid");
+const kid = document.getElementById("kid");
+{% if app.environment == "dev" %}const healthtrainDebugUrl = document.getElementById("htDebugUrl");{% endif %}
+embedCode.addEventListener("change", (event) => {
+const embedContent = embedCode.value;
+errorMessage.textContent = "";
+if(!embedContent.length) return;
+const regex = new RegExp('\\/\\/videos\\.sproutvideo\\.com\\/embed\\/([a-z0-9]+)\\/([a-z0-9]+)', 'gm');
 
+if (matches = regex.exec(embedContent)) {
+const match_vidUrl = matches[0];
+const match_vid = matches[1];
+const match_kid = matches[2];
 
-    embedCode.addEventListener("change", (event) => {
-        const embedContent = embedCode.value;
-        const regex = new RegExp('\\/\\/videos\\.sproutvideo\\.com\\/embed\\/([a-z0-9]+)\\/([a-z0-9]+)', 'gm');
-        
-        if(matches = regex.exec(embedContent)) {
-            const match_vidUrl = matches[0];
-            const match_vid = matches[1];
-            const match_kid = matches[2];
+sproutvideoUrl.value = "https:" + match_vidUrl;
+healthtrainUrl.value = "https://videos.healthtrain.app/embed/sv/" + match_vid + "/" + match_kid + "/";
+afsprakenUrl.value = "https://mobiel.afsprakenapp.nl/hwo/v6/video.php?vid=" + match_vid + "&kid=" + match_kid;
+vid.textContent = matches[1];
+kid.textContent = matches[2];
+{% if app.environment == "dev" %}healthtrainDebugUrl.value = "http://videos.healthtrain.wip/embed/sv/" + match_vid + "/" + match_kid + "/";{% endif %}
 
-            sproutvideoUrl.value = "https:" + match_vidUrl;
-            healthtrainUrl.value = "https://videos.healthtrain.app/embed/sv/"+match_vid+"/"+match_kid+"/";
-            afsprakenUrl.value = "https://mobiel.afsprakenapp.nl/hwo/v6/video.php?vid="+match_vid+"&kid="+match_kid;
-            vid.textContent = matches[1];
-            kid.textContent = matches[2];
-
-			{% if app.environment == "dev" %}
-            healthtrainDebugUrl.value = "http://localhost:8000/embed/sv/"+match_vid+"/"+match_kid+"/";
-			{% endif %}
-
-        } else {
-            errorMessage.textContent = "Error: Can't match url from embed code"
-        }
+} else {
+	errorMessage.textContent = "Fout: Kan geen geldige URL in ingevoerde embed code vinden."
+}
 
 
-    });
+});
 
-})})();
+})
+})();
 
-    function copyUrl(target) {
-		console.log(target);
-        navigator.clipboard.writeText(document.getElementById(target).value).then((success) => console.log("text copied"), (err) => console.log("error copying text"));
-    };
-
-</script>
+function copyUrl(target) {
+console.log(target);
+navigator.clipboard.writeText(document.getElementById(target).value).then((success) => console.log("text copied"), (err) => console.log("error copying text"));
+};
+	</script>
 {% endblock %}
-
-{% block style %}<style>
-html,
-body {
-	background: #f4fbff none;
-	font: 18px sans-serif;
-}
-
-main {
-	margin: auto;
-	padding: 1rem;
-	max-width: calc(100% - 2rem);
-	font-size: 20px;
-	line-height: 1.6;
-}
-
-textarea {
-	width: 40em;
-	height: 200px;
-	padding: 8px;
-	background-color: #fff;
-	border: 1px solid #51ABFD;
-	border-radius: 10px;
-}
-
-input {
-	background-color: #fff;
-	width: 50em;
-	padding: 8px;
-	font-size: 16px;
-	border: 1px solid #51ABFD;
-	border-radius: 10px;
-}
-
-button {
-	color: white;
-	background-color: #5AD2B4;
-	border: 0;
-	padding: 10px 16px;
-}
-
-button:hover {
-	background-color: #0DA190;
-	cursor: pointer;
-}
-
-button:active {
-	background-color: black;
-}
-
-.error {
-    color: #884433;
-}
-
-</style>{% endblock %}

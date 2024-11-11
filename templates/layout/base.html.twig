@@ -2,7 +2,11 @@
 <html>
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{% block title %}Welcome!{% endblock %}</title>
+        {% block stylesheets %}
+            {{ encore_entry_link_tags('app') }}
+        {% endblock %}
         <meta name="robots" content="noindex, nofollow">
         <link rel="icon" href="/favicon.ico">
         {% block style %}
@@ -12,6 +16,19 @@
         {% endblock %}
     </head>
     <body>
+    <header class="bg-white">
+  <nav class="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
+    <div></div>
+    <a href="{{ app_website }}" class="-m-1.5 p-1.5">
+      <span class="sr-only">HealthTrain</span>
+      <img class="h-8 w-auto" src="https://www.healthtrain.app/wp-content/uploads/2024/01/HealthTrain-Logo-Diverse-formaten-V1-1.svg" alt="">
+    </a>
+    <div></div>
+  </nav>
+  </div>
+</header>
+        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8 py-12">
         {% block content %}{% endblock %}
+        </div>
     </body>
 </html>

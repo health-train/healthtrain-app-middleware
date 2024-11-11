@@ -9,6 +9,6 @@ class DefaultController extends AbstractController
 {
     public function index(): Response
     {
-        return $this->redirect('https://www.healthtrain.app');
+        return $this->redirect($_ENV['APP_WEBSITE']);
     }
 }

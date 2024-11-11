@@ -2,6 +2,7 @@ twig:
     file_name_pattern: '*.html.twig'
     globals:
         app_website: '%env(APP_WEBSITE)%'
+        app_website_plans: '%env(APP_WEBSITE_PLANS)%'
 
 when@test:
     twig:

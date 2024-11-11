@@ -26,7 +26,7 @@ Websites should POST to the `/session/create` endpoint. The user will be redirec
     <input type="hidden" name="priceId" value="[STRIPE PRICE ID]"/>
     <label for="licenses">Aantal licenties:</label>
     <input type="number" id="licenses" name="quantity" value="1" min="1" max="75"/>
-    <button>€20,20 / licentie / maand</button>
+    <button>Start now</button>
 </form>
 ```
 

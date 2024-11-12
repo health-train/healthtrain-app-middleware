@@ -64,6 +64,11 @@ checkout_create_session_cancelled:
     requirements:
         domain: '%domain%'
 
+checkout_webhook_stripe:
+    path: /webhooks/stripe
+    controller: App\Controller\CheckoutController::stripe_webhooks
+    methods: POST
+
 video_tools_embed:
     path: /tools/embed/
     controller: App\Controller\VideosController::tools_embed

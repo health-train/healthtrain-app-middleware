@@ -2,13 +2,20 @@
 
 namespace App\Controller;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class CheckoutController extends AbstractController
 {
+
+    public function __construct(
+        private LoggerInterface $logger,
+    ) {
+    }
 
     public function index(): Response
     {
@@ -21,9 +28,9 @@ class CheckoutController extends AbstractController
 
     public function plans(Request $request, string $plan = "default"): Response
     {
-        $testmode = $request->query->get('testmode') == true ? true: false;
+        $testmode = $request->query->get('testmode') == true ? true : false;
 
-        switch($plan) {
+        switch ($plan) {
             case "spotonmedics":
                 $view = "checkout/plan-spotonmedics.html.twig";
                 break;
@@ -49,7 +56,7 @@ class CheckoutController extends AbstractController
 
         $testmode = $request->request->get('testmode') == true ? true : false;
 
-        \Stripe\Stripe::setApiKey($testmode ? $_ENV['STRIPE_SECRET_KEY_TESTMODE'] : $_ENV['STRIPE_SECRET_KEY']);
+        $stripe = new \Stripe\StripeClient($testmode ? $_ENV['STRIPE_SECRET_KEY_TESTMODE'] : $_ENV['STRIPE_SECRET_KEY']);
 
         $stripePriceId = $request->request->get('priceId');
         $quantity = $request->request->get('quantity') ?? 1;
@@ -59,7 +66,7 @@ class CheckoutController extends AbstractController
             exit;
         }
 
-        $stripePrice = \Stripe\Price::retrieve($stripePriceId);
+        $stripePrice = $stripe->price->retrieve($stripePriceId);
         $stripePriceData = $stripePrice->metadata;
 
         if (!$stripePrice) {
@@ -87,7 +94,7 @@ class CheckoutController extends AbstractController
         $return_url = $this->generateUrl('checkout_plans_index', [], UrlGeneratorInterface::ABSOLUTE_URL);
 
         $success_params = ['checkout_session_id' => '{CHECKOUT_SESSION_ID}'];
-        if($testmode) {
+        if ($testmode) {
             $success_params = ['checkout_session_id' => '{CHECKOUT_SESSION_ID}', 'testmode' => 'true'];
         }
 
@@ -157,7 +164,7 @@ class CheckoutController extends AbstractController
             ]
         ];
 
-        $checkout_session = \Stripe\Checkout\Session::create($checkout_params);
+        $checkout_session = $stripe->checkout->sessions->create($checkout_params);
         return $this->redirect(url: $checkout_session->url);
     }
 
@@ -167,7 +174,7 @@ class CheckoutController extends AbstractController
 
     public function session_cancelled(Request $request): Response
     {
-        $testmode = $request->query->get('testmode') == true ? true: false;
+        $testmode = $request->query->get('testmode') == true ? true : false;
         return $this->render('checkout/cancelled.html.twig', [
             'testmode' => $testmode,
         ]);
@@ -178,7 +185,7 @@ class CheckoutController extends AbstractController
      */
     public function session_success(Request $request, string $checkout_session_id): Response
     {
-        $testmode = $request->query->get('testmode') == true ? true: false;
+        $testmode = $request->query->get('testmode') == true ? true : false;
 
         $stripe = new \Stripe\StripeClient($testmode ? $_ENV['STRIPE_SECRET_KEY_TESTMODE'] : $_ENV['STRIPE_SECRET_KEY']);
 
@@ -190,21 +197,22 @@ class CheckoutController extends AbstractController
 
 
         $organisation_name = $organisation_contact_name = $organisation_kvk = false;
-        foreach($checkout_session->custom_fields as $custom_field) {
-            if($custom_field->key == "organisation_contact_name") {
+        foreach ($checkout_session->custom_fields as $custom_field) {
+            if ($custom_field->key == "organisation_contact_name") {
                 $organisation_contact_name = $custom_field->text->value;
             }
-            if($custom_field->key == "organisation_name") {
+            if ($custom_field->key == "organisation_name") {
                 $organisation_name = $custom_field->text->value;
             }
-            if($custom_field->key == "organisation_kvk") {
+            if ($custom_field->key == "organisation_kvk") {
                 $organisation_kvk = $custom_field->numeric->value;
             }
         }
 
         // Update customer to save contact name to customer metadata
         // TODO: Move to webhook
-        if($organisation_contact_name) $stripe->customers->update($customer->id, ['metadata' => ['contact_name' => $organisation_contact_name]] );
+        if ($organisation_contact_name)
+            $stripe->customers->update($customer->id, ['metadata' => ['contact_name' => $organisation_contact_name]]);
 
         // Format as JSON for the demo.
         return $this->render('checkout/success.html.twig', [
@@ -225,7 +233,9 @@ class CheckoutController extends AbstractController
      */
     public function portal_redirect(Request $request): Response
     {
-        \Stripe\Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY']);
+        $testmode = $request->request->get('testmode') == true ? true : false;
+
+        $stripe = new \Stripe\StripeClient($testmode ? $_ENV['STRIPE_SECRET_KEY_TESTMODE'] : $_ENV['STRIPE_SECRET_KEY']);
 
         $stripeCustomerId = $request->request->get('$stripeCustomerId');
         $sessionId = $request->request->get('sessionId');
@@ -237,7 +247,7 @@ class CheckoutController extends AbstractController
         }
 
         if (!$stripeCustomerId && $sessionId) {
-            $checkout_session = \Stripe\Checkout\Session::retrieve($sessionId);
+            $checkout_session = $stripe->session->retrieve($sessionId);
             $stripeCustomerId = $checkout_session->customer;
         }
 
@@ -249,10 +259,51 @@ class CheckoutController extends AbstractController
                 $return_url = $_ENV['APP_WEBSITE'];
         }
 
-        $portal_session = \Stripe\BillingPortal\Session::create([
+        $portal_session = $stripe->billing->portal->create_session([
             'customer' => $stripeCustomerId,
             'return_url' => $return_url,
         ]);
         return $this->redirect(url: $portal_session->url);
+    }
+
+    public function stripe_webhooks(Request $request): JsonResponse
+    {
+        $testmode = $request->request->get('testmode') == true ? true : false;
+
+        \Stripe\Stripe::setApiKey($testmode ? $_ENV['STRIPE_SECRET_KEY_TESTMODE'] : $_ENV['STRIPE_SECRET_KEY']);
+
+        $endpoint_secret = $_ENV["STRIPE_WEBHOOK_SECRET"];
+
+        $payload = $request->getContent();
+        $sig_header = $request->headers->get('Stripe-Signature', '');
+        $event = null;
+
+        try {
+            $event = \Stripe\Webhook::constructEvent(
+                $payload,
+                $sig_header,
+                $endpoint_secret
+            );
+        } catch (\UnexpectedValueException $e) {
+            // Invalid payload
+            return new JsonResponse(['error' => 'Invalid payload'], Response::HTTP_BAD_REQUEST);
+        } 
+        catch (\Stripe\Exception\SignatureVerificationException $e) {
+            // Invalid signature
+            return new JsonResponse(['error' => 'Invalid signature'], Response::HTTP_BAD_REQUEST);
+        }
+
+        // Handle the event
+        switch ($event->type) {
+            case 'payment_intent.succeeded':
+                $this->logger->info('payment_intent.succeeded');
+                $paymentIntent = $event->data->object;
+            // ... handle other event types
+            default:
+                $this->logger->warn('Unknown event type:' . $event->type);
+        }
+
+        return new JsonResponse(['OK']);
+
     }
 }

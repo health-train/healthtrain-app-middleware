@@ -55,9 +55,10 @@ The following metadata can be attached to a Stripe price to adjust the behaviour
 ## Dev setup
 
 - `cd healthtrain-app-middleware/`
-- `symfony proxy:domain:attach healthtrain`
+- `symfony proxy:domain:attach healthtrain "*.healthtrain"`
 - `symfony proxy start`
 - `symfony server:start`
+- `symfony npm run watch`
 
 URLs
 - Domain served: [http://healthtrain.wip](http://healthtrain.wip)
@@ -66,7 +67,9 @@ URLs
 ## PROD deploy
 
 - SSH into server
-- `cd healthtrain-app-middleware/`
+- `cd healthtrain-app-middleware`
+- `composer install`
+- `npm run build`
 - `APP_ENV=prod APP_DEBUG=0 php bin/console cache:clear`
 
 ## Setup secrets

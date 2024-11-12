@@ -34,14 +34,14 @@
 						<label for="aaUrl" class="block text-sm/6 font-medium text-gray-900">AfsprakenApp Embed URL</label>
 						<div class="mt-2 flex rounded-md shadow-sm">
 							<input type="text" name="aaUrl" id="aaUrl" class="select-all block w-full rounded-none rounded-l-md border-0 py-1.5 pl-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ht-blue-80 sm:text-sm/6" onfocus="this.select()" readonly>
-							<button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 active:bg-ht-blue-80 active:text-white" onclick="copyUrl('svUrl')">Copy</button>
+							<button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 active:bg-ht-blue-80 active:text-white" onclick="copyUrl('aaUrl')">Copy</button>
 						</div>
 					</li>
 					<li class="px-6 py-4">
 						<label for="htUrl" class="block text-sm/6 font-medium text-gray-900">HealthTrain Embed URL</label>
 						<div class="mt-2 flex rounded-md shadow-sm">
 							<input type="text" name="htUrl" id="htUrl" class="select-all block w-full rounded-none rounded-l-md border-0 py-1.5 pl-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ht-blue-80 sm:text-sm/6" onfocus="this.select()" readonly>
-							<button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 active:bg-ht-blue-80 active:text-white" onclick="copyUrl('svUrl')">Copy</button>
+							<button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 active:bg-ht-blue-80 active:text-white" onclick="copyUrl('htUrl')">Copy</button>
 						</div>
 					</li>
 					{% if app.environment == "dev" %}
@@ -49,7 +49,7 @@
 							<label for="htDebugUrl" class="block text-sm/6 font-medium text-gray-900">HealthTrain Dev Embed URL</label>
 							<div class="mt-2 flex rounded-md shadow-sm">
 								<input type="text" name="htDebugUrl" id="htDebugUrl" class="select-all block w-full rounded-none rounded-l-md border-0 py-1.5 pl-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ht-blue-80 sm:text-sm/6" onfocus="this.select()" readonly>
-								<button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 active:bg-ht-blue-80 active:text-white" onclick="copyUrl('svUrl')">Copy</button>
+								<button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 active:bg-ht-blue-80 active:text-white" onclick="copyUrl('htDebugUrl')">Copy</button>
 							</div>
 						</li>
 

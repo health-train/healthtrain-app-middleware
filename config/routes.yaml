@@ -68,6 +68,11 @@ checkout_webhook_stripe:
     path: /webhooks/stripe
     controller: App\Controller\CheckoutController::stripe_webhooks
     methods: POST
+    host: "checkout.{domain}"
+    defaults:
+        domain: '%domain%'
+    requirements:
+        domain: '%domain%'
 
 video_tools_embed:
     path: /tools/embed/

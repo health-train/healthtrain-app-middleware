@@ -3,10 +3,10 @@
 {% block title %}HealthTrain -  Welkom bij HealthTrain{% endblock %}
 
 {% block content %}
-<div class="bg-white">
+<div class="bg-white rounded-3xl">
   <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
     <div class="max-w-xl">
-      <h1 class="text-base font-medium text-blue-600">Betaling gelukt</h1>
+      <h1 class="text-base font-medium text-ht-purple-60">Betaling gelukt</h1>
       <p class="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">Welkom {{ organisation_name | default('bij HealthTrain') }}</p>
 		<p class="mt-2 text-lg text-gray-500">Je ontvangt via e-mail een bevestiging van deze transactie.</p>
 	</div>
@@ -14,7 +14,7 @@
 	<div class="mt-10 pt-10 border-t border-gray-200">
      		<h2 class="text-base font-medium">Gegevens contactpersoon</h2>
 			<p class="mt-2 text-base text-gray-500">Je gegevens worden verwerkt en HealthTrain zal contact opnemen via het opgegeven e-mailadres voor onboarding.</p>
-			<a href="{{ app_website }}" class="mt-5 block w-full rounded-md bg-blue-600 px-4 py-4 text-center text-md font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">Terug naar HealthTrain</a>
+			<a href="{{ app_website }}" class="mt-5 block w-full rounded-md bg-ht-blue-80 px-4 py-4 text-center text-md font-semibold text-white shadow-sm hover:bg-opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ht-blue-80">Terug naar HealthTrain</a>
     </div>
 
     <div class="mt-10 border-t border-gray-200">

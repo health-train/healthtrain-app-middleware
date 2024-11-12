@@ -15,7 +15,7 @@
 				<div class="px-4 py-5 sm:p-6">
 					<label for="embedCode" class="block text-sm/6 font-medium text-gray-900">Sproutvideo inline embed code:</label>
 					<div class="mt-2">
-						<textarea id="embedCode" name="embedcode" rows="5" class="select-all block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm/6" onfocus="this.select()"></textarea>
+						<textarea id="embedCode" name="embedcode" rows="5" class="select-all block w-full rounded-md border-0 py-1.5 pl-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ht-blue-80 sm:text-sm/6" onfocus="this.select()"></textarea>
 					</div>
 					<p class="mt-3 text-sm/6 text-gray-600">Plak de Sproutvideo inline embed code hierboven</p>
 					<p class="mt-2 text-sm text-red-600" id="error"></p>
@@ -26,30 +26,30 @@
 					<li class="px-6 py-4">
 						<label for="svUrl" class="block text-sm/6 font-medium text-gray-900">Sproutvideo Embed URL</label>
 						<div class="mt-2 flex rounded-md shadow-sm">
-							<input type="text" name="svUrl" id="svUrl" class="select-all block w-full rounded-none rounded-l-md border-0 py-1.5 pl-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm/6" onfocus="this.select()" readonly>
-							<button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 active:bg-blue-600 active:text-white" onclick="copyUrl('svUrl')">Copy</button>
+							<input type="text" name="svUrl" id="svUrl" class="select-all block w-full rounded-none rounded-l-md border-0 py-1.5 pl-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ht-blue-80 sm:text-sm/6" onfocus="this.select()" readonly>
+							<button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 active:bg-ht-blue-80 active:text-white" onclick="copyUrl('svUrl')">Copy</button>
 						</div>
 					</li>
 					<li class="px-6 py-4">
 						<label for="aaUrl" class="block text-sm/6 font-medium text-gray-900">AfsprakenApp Embed URL</label>
 						<div class="mt-2 flex rounded-md shadow-sm">
-							<input type="text" name="aaUrl" id="aaUrl" class="select-all block w-full rounded-none rounded-l-md border-0 py-1.5 pl-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm/6" onfocus="this.select()" readonly>
-							<button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 active:bg-blue-600 active:text-white" onclick="copyUrl('svUrl')">Copy</button>
+							<input type="text" name="aaUrl" id="aaUrl" class="select-all block w-full rounded-none rounded-l-md border-0 py-1.5 pl-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ht-blue-80 sm:text-sm/6" onfocus="this.select()" readonly>
+							<button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 active:bg-ht-blue-80 active:text-white" onclick="copyUrl('svUrl')">Copy</button>
 						</div>
 					</li>
 					<li class="px-6 py-4">
 						<label for="htUrl" class="block text-sm/6 font-medium text-gray-900">HealthTrain Embed URL</label>
 						<div class="mt-2 flex rounded-md shadow-sm">
-							<input type="text" name="htUrl" id="htUrl" class="select-all block w-full rounded-none rounded-l-md border-0 py-1.5 pl-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm/6" onfocus="this.select()" readonly>
-							<button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 active:bg-blue-600 active:text-white" onclick="copyUrl('svUrl')">Copy</button>
+							<input type="text" name="htUrl" id="htUrl" class="select-all block w-full rounded-none rounded-l-md border-0 py-1.5 pl-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ht-blue-80 sm:text-sm/6" onfocus="this.select()" readonly>
+							<button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 active:bg-ht-blue-80 active:text-white" onclick="copyUrl('svUrl')">Copy</button>
 						</div>
 					</li>
 					{% if app.environment == "dev" %}
 						<li class="px-6 py-4">
 							<label for="htDebugUrl" class="block text-sm/6 font-medium text-gray-900">HealthTrain Dev Embed URL</label>
 							<div class="mt-2 flex rounded-md shadow-sm">
-								<input type="text" name="htDebugUrl" id="htDebugUrl" class="select-all block w-full rounded-none rounded-l-md border-0 py-1.5 pl-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm/6" onfocus="this.select()" readonly>
-								<button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 active:bg-blue-600 active:text-white" onclick="copyUrl('svUrl')">Copy</button>
+								<input type="text" name="htDebugUrl" id="htDebugUrl" class="select-all block w-full rounded-none rounded-l-md border-0 py-1.5 pl-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ht-blue-80 sm:text-sm/6" onfocus="this.select()" readonly>
+								<button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 active:bg-ht-blue-80 active:text-white" onclick="copyUrl('svUrl')">Copy</button>
 							</div>
 						</li>
 

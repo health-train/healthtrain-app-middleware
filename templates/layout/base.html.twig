@@ -1,34 +1,40 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        {% block stylesheets %}
-            {{ encore_entry_link_tags('app') }}
-        {% endblock %}
-        <meta name="robots" content="noindex, nofollow">
-        <link rel="icon" href="/favicon.ico">
-        {% block style %}
-        {% endblock %}
-
-        {% block script %}
-        {% endblock %}
-    </head>
-    <body>
-    <header class="bg-white">
-  <nav class="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
-    <div></div>
-    <a href="{{ app_website }}" class="-m-1.5 p-1.5">
-      <span class="sr-only">HealthTrain</span>
-      <img class="h-8 w-auto" src="https://www.healthtrain.app/wp-content/uploads/2024/01/HealthTrain-Logo-Diverse-formaten-V1-1.svg" alt="">
-    </a>
-    <div></div>
-  </nav>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    {% block title %}HealthTrain{% endblock %}
+  </title>
+  {% block stylesheets %}
+    {{ encore_entry_link_tags('app') }}
+  {% endblock %}
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/favicon.ico"> {% block style %}{% endblock %}{% block script %}{% endblock %}
+</head>
+<body>
+  <header>
+    <nav class="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
+      <div></div>
+      <a href="{{ app_website }}" class="-m-1.5 p-1.5">
+        <span class="sr-only">HealthTrain</span>
+        <img class="h-8 w-auto" src="https://www.healthtrain.app/wp-content/uploads/2024/01/HealthTrain-Logo-Diverse-formaten-V1-1.svg" alt="">
+      </a>
+      <div></div>
+    </nav>
+  </header>
+  <div class="mx-auto max-w-7xl sm:px-6 lg:px-8 pt-12">
+    {% block content %}{% endblock %}
   </div>
-</header>
-        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8 py-12">
-        {% block content %}{% endblock %}
-        </div>
-    </body>
+  <footer>
+    <div class="mx-auto max-w-7xl px-6 py-12 sm:py-6 lg:px-8">
+      <nav class="-mb-6 flex flex-wrap justify-center gap-x-12 gap-y-3 text-sm/6" aria-label="Footer">
+        <a href="https://www.healthtrain.app/voorwaarden/" class="text-gray-500 hover:text-gray-900">Voorwaarden</a>
+        <a href="https://www.healthtrain.app/privacy/" class="text-gray-500 hover:text-gray-900">Privacy</a>
+        <a href="https://www.healthtrain.app/cookies/" class="text-gray-500 hover:text-gray-900">Cookies</a>
+      </nav>
+      <p class="mt-10 text-center text-sm/6 text-gray-500">© {{ "now"|date("Y") }} HealthTrain. Alle rechten voorbehouden.</p>
+    </div>
+  </footer>
+  </body>
 </html>

@@ -66,7 +66,7 @@ class CheckoutController extends AbstractController
             exit;
         }
 
-        $stripePrice = $stripe->price->retrieve($stripePriceId);
+        $stripePrice = $stripe->prices->retrieve($stripePriceId);
         $stripePriceData = $stripePrice->metadata;
 
         if (!$stripePrice) {

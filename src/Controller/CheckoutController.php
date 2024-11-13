@@ -49,6 +49,7 @@ class CheckoutController extends AbstractController
     public function create_session(Request $request): Response
     {
 
+        // Initialize
         if (!$_ENV['STRIPE_SECRET_KEY'] || !$_ENV['STRIPE_DEFAULT_TAXRATE_ID']) {
             echo 'Missing required env variable';
             exit;
@@ -58,22 +59,25 @@ class CheckoutController extends AbstractController
 
         $stripe = new \Stripe\StripeClient($testmode ? $_ENV['STRIPE_SECRET_KEY_TESTMODE'] : $_ENV['STRIPE_SECRET_KEY']);
 
+        // Get request params
         $stripePriceId = $request->request->get('priceId');
         $quantity = $request->request->get('quantity') ?? 1;
 
+        // Validation: Check if we have required params
         if (!$stripePriceId) {
             echo 'Invalid request';
             exit;
         }
 
+        // Validation: Check if priceId is available
         $stripePrice = $stripe->prices->retrieve($stripePriceId);
         $stripePriceData = $stripePrice->metadata;
-
         if (!$stripePrice) {
             echo 'Data not available';
             exit;
         }
 
+        // Config: Adjustable quantity
         $adjustable_quantity_config = [];
         if ($stripePriceData->adjust_quantity == "true") {
             $adjustable_quantity_config = [
@@ -83,6 +87,25 @@ class CheckoutController extends AbstractController
             ];
         }
 
+        // Config: Return URL for cancelled checkouts
+        $cancelled_return_url = $this->generateUrl('checkout_plans_index', [], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        // Config: Return URL for successful checkouts
+        $success_params = ['checkout_session_id' => '{CHECKOUT_SESSION_ID}'];
+        if ($testmode) {
+            $success_params = ['checkout_session_id' => '{CHECKOUT_SESSION_ID}', 'testmode' => 'true'];
+        }
+        $success_return_url = $this->generateUrl('checkout_create_session_success', $success_params, UrlGeneratorInterface::ABSOLUTE_URL);
+
+        // Config: Subscription line item
+        $line_item_subscription = [
+            'price' => $stripePrice->id,
+            'quantity' => $quantity,
+            'tax_rates' => [$stripePriceData->taxRateId ?? $_ENV['STRIPE_DEFAULT_TAXRATE_ID']],
+            'adjustable_quantity' => $adjustable_quantity_config
+        ];
+
+        // Config: Trial period
         $subscription_data_config = [];
         if ($stripePriceData->trial_period == "true") {
             $subscription_data_config = [
@@ -91,24 +114,30 @@ class CheckoutController extends AbstractController
             ];
         }
 
-        $return_url = $this->generateUrl('checkout_plans_index', [], UrlGeneratorInterface::ABSOLUTE_URL);
-
-        $success_params = ['checkout_session_id' => '{CHECKOUT_SESSION_ID}'];
-        if ($testmode) {
-            $success_params = ['checkout_session_id' => '{CHECKOUT_SESSION_ID}', 'testmode' => 'true'];
+        // Config: Custom text
+        $custom_text = [];
+        if($stripePriceData->custom_text_after_submit) {
+            $custom_text['after_submit'] = [
+                'message' => $stripePriceData->custom_text_after_submit
+            ];
+        }
+        if($stripePriceData->custom_text_submit) {
+            $custom_text['submit'] = [
+                'message' => $stripePriceData->custom_text_submit
+            ];
+        }
+        if($stripePriceData->custom_text_terms) {
+            $custom_text['terms_of_service_acceptance'] = [
+                'message' => $stripePriceData->custom_text_terms
+            ];
         }
 
         $checkout_params = [
-            'success_url' => urldecode($this->generateUrl('checkout_create_session_success', $success_params, UrlGeneratorInterface::ABSOLUTE_URL)),
-            'cancel_url' => urldecode($return_url),
+            'success_url' => urldecode($success_return_url),
+            'cancel_url' => urldecode($cancelled_return_url),
             'mode' => 'subscription',
             'line_items' => [
-                [
-                    'price' => $stripePrice->id,
-                    'quantity' => $quantity,
-                    'tax_rates' => [$stripePriceData->taxRateId ?? $_ENV['STRIPE_DEFAULT_TAXRATE_ID']],
-                    'adjustable_quantity' => $adjustable_quantity_config
-                ]
+                $line_item_subscription
             ],
             'subscription_data' => $subscription_data_config,
             'consent_collection' => [
@@ -151,17 +180,7 @@ class CheckoutController extends AbstractController
             ],
             'locale' => $stripePriceData->locale ?? 'nl',
             'allow_promotion_codes' => $stripePriceData->allow_promotion_codes ?? false,
-            'custom_text' => [
-                'after_submit' => [
-                    'message' => $stripePriceData->custom_text_after_submit ?? null
-                ],
-                'submit' => [
-                    'message' => $stripePriceData->custom_text_submit ?? null
-                ],
-                'terms_of_service_acceptance' => [
-                    'message' => $stripePriceData->custom_text_terms ?? null
-                ]
-            ]
+            'custom_text' => $custom_text
         ];
 
         $checkout_session = $stripe->checkout->sessions->create($checkout_params);
@@ -171,7 +190,6 @@ class CheckoutController extends AbstractController
     /*
      * session result: cancelled
      */
-
     public function session_cancelled(Request $request): Response
     {
         $testmode = $request->query->get('testmode') == true ? true : false;

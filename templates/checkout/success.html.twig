@@ -8,22 +8,16 @@
     <div class="max-w-xl">
       <h1 class="text-base font-medium text-ht-purple-60">Betaling gelukt</h1>
       <p class="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">Welkom {{ organisation_name | default('bij HealthTrain') }}</p>
-		<p class="mt-2 text-lg text-gray-500">Je ontvangt via e-mail een bevestiging van deze transactie.</p>
+		<p class="mt-2 text-lg text-gray-500">Bekijk je e-mail inbox voor een bevestiging met de volgende aansluitstappen.</p>
 	</div>
-
-	<div class="mt-10 pt-10 border-t border-gray-200">
-     		<h2 class="text-base font-medium">Gegevens contactpersoon</h2>
-			<p class="mt-2 text-base text-gray-500">Je gegevens worden verwerkt en HealthTrain zal contact opnemen via het opgegeven e-mailadres voor onboarding.</p>
-			<a href="{{ app_website }}" class="mt-5 block w-full rounded-md bg-ht-blue-80 px-4 py-4 text-center text-md font-semibold text-white shadow-sm hover:bg-opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ht-blue-80">Terug naar HealthTrain</a>
-    </div>
 
     <div class="mt-10 border-t border-gray-200">
 
-      <div>
-        <h3 class="sr-only">Organisatiegegevens</h3>
+        <div>
+          <h3 class="sr-only">Organisatiegegevens</h3>
 
-        <dl class="grid grid-cols-2 gap-x-6 py-10 text-sm">
-		<div>
+          <dl class="grid grid-cols-2 gap-x-6 py-10 text-sm">
+          <div>
             <dt class="font-medium text-gray-900">Betalinggegevens</dt>
             <dd class="mt-2 text-gray-700">
 				{% if payment_method.type == 'card' %}
@@ -51,6 +45,9 @@
           </div>
         </dl>
       </div>
+      <div class="pt-10 border-t border-gray-200">
+			<a href="{{ app_website }}" class="mt-5 block w-full rounded-md bg-ht-blue-80 px-4 py-4 text-center text-md font-semibold text-white shadow-sm hover:bg-opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ht-blue-80">Terug naar HealthTrain</a>
+    </div>
     </div>
   </div>
 </div>

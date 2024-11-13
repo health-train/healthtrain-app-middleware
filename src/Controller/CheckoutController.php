@@ -8,13 +8,21 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use App\OAuth1\OAuth1Request;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+
 
 class CheckoutController extends AbstractController
 {
 
+    private $oauthClient;
+
     public function __construct(
         private LoggerInterface $logger,
+        private HttpClientInterface $client,
+        HttpClientInterface $oauthPocClient
     ) {
+        $this->oauthClient = $oauthPocClient;
     }
 
     public function index(): Response
@@ -116,17 +124,17 @@ class CheckoutController extends AbstractController
 
         // Config: Custom text
         $custom_text = [];
-        if($stripePriceData->custom_text_after_submit) {
+        if ($stripePriceData->custom_text_after_submit) {
             $custom_text['after_submit'] = [
                 'message' => $stripePriceData->custom_text_after_submit
             ];
         }
-        if($stripePriceData->custom_text_submit) {
+        if ($stripePriceData->custom_text_submit) {
             $custom_text['submit'] = [
                 'message' => $stripePriceData->custom_text_submit
             ];
         }
-        if($stripePriceData->custom_text_terms) {
+        if ($stripePriceData->custom_text_terms) {
             $custom_text['terms_of_service_acceptance'] = [
                 'message' => $stripePriceData->custom_text_terms
             ];
@@ -213,7 +221,6 @@ class CheckoutController extends AbstractController
         $customer = $stripe->customers->retrieve($checkout_session->customer);
         $payment_method = $stripe->paymentMethods->retrieve($subscription->default_payment_method);
 
-
         $organisation_name = $organisation_contact_name = $organisation_kvk = false;
         foreach ($checkout_session->custom_fields as $custom_field) {
             if ($custom_field->key == "organisation_contact_name") {
@@ -227,10 +234,30 @@ class CheckoutController extends AbstractController
             }
         }
 
-        // Update customer to save contact name to customer metadata
         // TODO: Move to webhook
-        if ($organisation_contact_name)
+        if ($customer && $organisation_contact_name) {
+
+            // Update customer to save contact name to customer metadata
             $stripe->customers->update($customer->id, ['metadata' => ['contact_name' => $organisation_contact_name]]);
+
+            $mailPlusParams = [
+                'externalId' => $customer->id,
+                'properties' => [
+                    'email' => $customer->email,
+                    'firstName' => $organisation_contact_name,
+                    "permissions" => [
+                        [
+                            "bit" => 4,
+                            "enabled" => true
+                        ]
+                    ]
+                ]
+            ];
+            // Subscribe customer to Spotler Permission
+            $OAuthRequest = new OAuth1Request($_ENV['SPOTLER_CONSUMER_KEY'], $_ENV['SPOTLER_CONSUMER_SECRET']);
+            $OAuthRequest->request($this->oauthClient, 'POST', 'https://restapi.mailplus.nl/integrationservice/subscription/subscribe', [], $mailPlusParams);
+
+        }
 
         // Format as JSON for the demo.
         return $this->render('checkout/success.html.twig', [
@@ -305,8 +332,7 @@ class CheckoutController extends AbstractController
         } catch (\UnexpectedValueException $e) {
             // Invalid payload
             return new JsonResponse(['error' => 'Invalid payload'], Response::HTTP_BAD_REQUEST);
-        } 
-        catch (\Stripe\Exception\SignatureVerificationException $e) {
+        } catch (\Stripe\Exception\SignatureVerificationException $e) {
             // Invalid signature
             return new JsonResponse(['error' => 'Invalid signature'], Response::HTTP_BAD_REQUEST);
         }

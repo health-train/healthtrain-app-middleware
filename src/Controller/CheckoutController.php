@@ -390,7 +390,7 @@ class CheckoutController extends AbstractController
                 $paymentIntent = $event->data->object;
             // ... handle other event types
             default:
-                $this->logger->warn('Unknown event type:' . $event->type);
+                $this->logger->warning('Unknown event type:' . $event->type);
         }
 
         return new JsonResponse(['OK']);

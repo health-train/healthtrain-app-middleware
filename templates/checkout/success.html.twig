@@ -5,6 +5,9 @@
 {% block content %}
 <div class="bg-white rounded-3xl">
   <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+  	{% if testmode %}
+		<span class="inline-flex items-center rounded-md bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">Testmodus</span>
+		{% endif %}
     <div class="max-w-xl">
       <h1 class="text-base font-medium text-ht-purple-60">Betaling gelukt</h1>
       <p class="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">Welkom {{ organisation_name | default('bij HealthTrain') }}</p>

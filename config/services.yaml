@@ -21,5 +21,19 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    Logtail\Monolog\LogtailHandler:
+        autoconfigure: true
+        arguments:
+            $sourceToken: '%env(BETTER_STACK_SOURCE_TOKEN)%'
+        tags:
+            - { name: monolog.handler }
+
+    # optional processor to replace context variables in your logs
+    # e.g. replaces {route} by context.route
+    Monolog\Processor\PsrLogMessageProcessor:
+        autoconfigure: true
+        tags:
+            - { name: monolog.processor }
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

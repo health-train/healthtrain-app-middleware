@@ -4,6 +4,10 @@ controllers:
         namespace: App\Controller
     type: attribute
 
+# webhooks:
+#     resource: '@FrameworkBundle/Resources/config/routing/webhook.xml'
+#     prefix: /
+
 checkout_plans_index:
     path: /
     controller: App\Controller\CheckoutController::index
@@ -63,16 +67,6 @@ checkout_create_session_cancelled:
         domain: '%domain%'
     requirements:
         domain: '%domain%'
-
-# checkout_webhook_stripe:
-#     path: /webhooks/stripe
-#     controller: App\Controller\CheckoutController::stripe_webhooks
-#     methods: POST
-#     host: "checkout.{domain}"
-#     defaults:
-#         domain: '%domain%'
-#     requirements:
-#         domain: '%domain%'
 
 video_tools_embed:
     path: /tools/embed/

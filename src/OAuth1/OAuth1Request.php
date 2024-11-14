@@ -77,7 +77,7 @@ class OAuth1Request
      */
     private function baseString(string $method, string $requestUri, array $queryParams)
     {
-        $params = http_build_query($queryParams, null, '&', PHP_QUERY_RFC3986);
+        $params = http_build_query($queryParams,"", '&', PHP_QUERY_RFC3986);
         return sprintf('%s&%s&%s', $method, rawurlencode($requestUri), rawurlencode($params));
     }
 

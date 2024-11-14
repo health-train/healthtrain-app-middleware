@@ -20,9 +20,10 @@ class CheckoutController extends AbstractController
     public function __construct(
         private LoggerInterface $logger,
         private HttpClientInterface $client,
-        HttpClientInterface $oauthPocClient
+        private HttpClientInterface $oauthPocClient
     ) {
         $this->oauthClient = $oauthPocClient;
+        $this->logger = $logger;
     }
 
     public function index(): Response
@@ -192,6 +193,8 @@ class CheckoutController extends AbstractController
         ];
 
         $checkout_session = $stripe->checkout->sessions->create($checkout_params);
+
+        $this->logger->info('Checkout session started: ' . $checkout_session->id . ' [stripePriceId: ' . $stripePriceId . '] [Quantity: ' . $quantity . ']', array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'checkout_session_id' => $checkout_session->id, 'stripePriceId' => $stripePriceId, 'quantity' => $quantity, 'testmode' => $testmode));
         return $this->redirect(url: $checkout_session->url);
     }
 
@@ -237,27 +240,53 @@ class CheckoutController extends AbstractController
         // TODO: Move to webhook
         if ($customer && $organisation_contact_name) {
 
+            
             // Update customer to save contact name to customer metadata
-            $stripe->customers->update($customer->id, ['metadata' => ['contact_name' => $organisation_contact_name]]);
+            try {
+                $stripeCustomerParams = ['contact_name' => $organisation_contact_name];
+                $stripe->customers->update($customer->id, ['metadata' => $stripeCustomerParams]);
+            } catch (\Exception $e) {
+                $this->logger->error($e->getMessage(), array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'checkout_session_id' => $checkout_session->id, 'body' => $stripeCustomerParams, 'testmode' => $testmode, 'exception' => $e));
+            }
 
-            $mailPlusParams = [
-                'externalId' => $customer->id,
-                'properties' => [
-                    'email' => $customer->email,
-                    'firstName' => $organisation_contact_name,
-                    "permissions" => [
-                        [
-                            "bit" => 4,
-                            "enabled" => true
+            // Subscribe customer to Spotler Permission and trigger automation
+            $OAuthRequest = new OAuth1Request($_ENV['SPOTLER_CONSUMER_KEY'], $_ENV['SPOTLER_CONSUMER_SECRET']);
+
+            // Create MailPlus Contact
+            try {
+                $mailPlusContactParams = [
+                    "update" => true,
+                    "purge" => false,
+                    'contact' => [
+                        'externalId' => $customer->id,
+                        'properties' => [
+                            'email' => $customer->email,
+                            'firstName' => $organisation_contact_name,
+                            'organisaton' => $customer->name,
+                            "permissions" => [
+                                [
+                                    "bit" => 4,
+                                    "enabled" => true
+                                ]
+                            ]
                         ]
                     ]
-                ]
-            ];
-            // Subscribe customer to Spotler Permission
-            $OAuthRequest = new OAuth1Request($_ENV['SPOTLER_CONSUMER_KEY'], $_ENV['SPOTLER_CONSUMER_SECRET']);
-            $OAuthRequest->request($this->oauthClient, 'POST', 'https://restapi.mailplus.nl/integrationservice/subscription/subscribe', [], $mailPlusParams);
+                ]; 
+                $OAuthRequest->request($this->oauthClient, 'POST', 'https://restapi.mailplus.nl/integrationservice/contact', [], $mailPlusContactParams);
+            } catch (\Exception $e) {
+                $this->logger->error($e->getMessage(), array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'checkout_session_id' => $checkout_session->id, 'body' => $mailPlusContactParams, 'testmode' => $testmode, 'exception' => $e));
+            }
 
+            // Trigger automation for MailPlus Contact
+            try {
+                $mailPlusAutomationParams = ['externalContactId' => $customer->id];
+                $OAuthRequest->request($this->oauthClient, 'POST', 'https://restapi.mailplus.nl/integrationservice/automation/trigger/bc0a8795-536c-432b-83ef-bcb46944eb0f', [], $mailPlusAutomationParams);
+            } catch (\Exception $e) {
+                $this->logger->error($e->getMessage(), array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'checkout_session_id' => $checkout_session->id, 'body' => $mailPlusAutomationParams, 'testmode' => $testmode, 'exception' => $e));
+            }
         }
+
+        $this->logger->info('Checkout session success: ' . $checkout_session->id, array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'checkout_session_id' => $checkout_session->id, 'testmode' => $testmode));
 
         // Format as JSON for the demo.
         return $this->render('checkout/success.html.twig', [
@@ -308,6 +337,7 @@ class CheckoutController extends AbstractController
             'customer' => $stripeCustomerId,
             'return_url' => $return_url,
         ]);
+        $this->logger->info('Portal redirected for customer(' . $stripeCustomerId . ')', array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'customer' => $stripeCustomerId, 'return_url' => $return_url));
         return $this->redirect(url: $portal_session->url);
     }
 

@@ -303,15 +303,31 @@ class CheckoutController extends AbstractController
     }
 
     /*
-     * redirect to Stripe billing portal
+     * redirect to Stripe billing portal (public)
      */
     public function portal_redirect(Request $request): Response
     {
-        $testmode = $request->request->get('testmode') == true ? true : false;
+        $testmode = $request->query->get('testmode') == true ? true : false;
+        $prefilled_email = $request->query->get('prefilled_email') ? $request->query->get('prefilled_email') : false;
 
+        $portal_redirect_url = $testmode ? $_ENV['STRIPE_BILLING_URL_TESTMODE'] : $_ENV['STRIPE_BILLING_URL'];
+        if($request->query->get('prefilled_email')) {
+            $portal_redirect_url = $portal_redirect_url.'?prefilled_email='.$prefilled_email;
+        }
+
+        return $this->redirect($portal_redirect_url);
+ 
+    }
+
+    /*
+     * redirect to Stripe billing portal (logged in)
+     */
+    public function portal_redirect_login(Request $request): Response
+    {
+        $testmode = $request->request->get('testmode') == true ? true : false;
         $stripe = new \Stripe\StripeClient($testmode ? $_ENV['STRIPE_SECRET_KEY_TESTMODE'] : $_ENV['STRIPE_SECRET_KEY']);
 
-        $stripeCustomerId = $request->request->get('$stripeCustomerId');
+        $stripeCustomerId = $request->request->get('stripeCustomerId');
         $sessionId = $request->request->get('sessionId');
         $redirectChannel = $request->request->get('redirect');
 
@@ -333,7 +349,7 @@ class CheckoutController extends AbstractController
                 $return_url = $_ENV['APP_WEBSITE'];
         }
 
-        $portal_session = $stripe->billing->portal->create_session([
+        $portal_session = $stripe->billingPortal->sessions->create([
             'customer' => $stripeCustomerId,
             'return_url' => $return_url,
         ]);

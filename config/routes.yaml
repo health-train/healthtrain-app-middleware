@@ -31,6 +31,16 @@ checkout_plans:
 checkout_portal:
     path: /portal
     controller: App\Controller\CheckoutController::portal_redirect
+    methods: GET
+    host: "checkout.{domain}"
+    defaults:
+        domain: '%domain%'
+    requirements:
+        domain: '%domain%'
+
+checkout_portal_login:
+    path: /portal
+    controller: App\Controller\CheckoutController::portal_redirect
     methods: POST
     host: "checkout.{domain}"
     defaults:

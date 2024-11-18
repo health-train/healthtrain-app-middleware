@@ -19,10 +19,10 @@ class VideosController extends AbstractController
     {
         return $this->render('videos/tools_embed.html.twig');
     }
-    
+
     public function embed_sproutvideo(string $video_id, string $key_id): Response
     {
-        $this->logger->info('Video embed loaded [video_id: ' . $video_id. ']', array('properties' => array('type' => 'videos', 'action' => __FUNCTION__), 'video_Id' => $video_id));
+        $this->logger->info('Video embed loaded [video_id: ' . $video_id . ']', array('properties' => array('type' => 'videos', 'action' => __FUNCTION__), 'video_Id' => $video_id));
         return $this->render('videos/embed_sproutvideo.html.twig', [
             'video_id' => $video_id,
             'key_id' => $key_id

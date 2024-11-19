@@ -251,18 +251,17 @@ class CheckoutController extends AbstractController
 
             // Subscribe customer to Spotler Permission and trigger automation
             $OAuthRequest = new OAuth1Request($_ENV['SPOTLER_CONSUMER_KEY'], $_ENV['SPOTLER_CONSUMER_SECRET']);
-
             // Create MailPlus Contact
             try {
                 $mailPlusContactParams = [
-                    "update" => true,
+                    "update" => false,
                     "purge" => false,
                     'contact' => [
                         'externalId' => $customer->id,
                         'properties' => [
                             'email' => $customer->email,
                             'firstName' => $organisation_contact_name,
-                            'organisaton' => $customer->name,
+                            'organisation' => $customer->name,
                             "permissions" => [
                                 [
                                     "bit" => 4,

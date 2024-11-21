@@ -10,10 +10,6 @@ when@dev:
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
                 level: debug
                 channels: ["!event"]
-            better_stack:
-                type: service
-                channels: ["app"]
-                id: Logtail\Monolog\LogtailHandler
             console:
                 type: console
                 process_psr_3_messages: false

@@ -4,10 +4,6 @@ controllers:
         namespace: App\Controller
     type: attribute
 
-# webhooks:
-#     resource: '@FrameworkBundle/Resources/config/routing/webhook.xml'
-#     prefix: /
-
 checkout_plans_index:
     path: /
     controller: App\Controller\CheckoutController::index
@@ -169,6 +165,10 @@ invite_htger_at:
     requirements:
         subdomain: "invite|i"
         domain: "%domain%"
+
+webhooks:
+    resource: '@FrameworkBundle/Resources/config/routing/webhook.xml'
+    prefix: /webhooks/
 
 index:
     path: /

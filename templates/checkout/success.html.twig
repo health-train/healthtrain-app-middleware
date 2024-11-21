@@ -10,7 +10,7 @@
 		{% endif %}
     <div class="max-w-xl">
       <h1 class="text-base font-medium text-ht-purple-60">Betaling gelukt</h1>
-      <p class="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">Welkom {{ organisation_name | default('bij HealthTrain') }}</p>
+      <p class="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">Welkom {{ customer_data.organisation_name | default('bij HealthTrain') }}</p>
 		<p class="mt-2 text-lg text-gray-500">Bekijk je e-mail inbox voor een bevestiging met de volgende aansluitstappen.</p>
 	</div>
 
@@ -20,7 +20,9 @@
           <h3 class="sr-only">Organisatiegegevens</h3>
 
           <dl class="grid grid-cols-2 gap-x-6 py-10 text-sm">
+        {% if payment_method is defined %}
           <div>
+
             <dt class="font-medium text-gray-900">Betalinggegevens</dt>
             <dd class="mt-2 text-gray-700">
 				{% if payment_method.type == 'card' %}
@@ -33,19 +35,23 @@
                 <span class="block font-bold">Onbekend ({{ payment_method.type }})</span>
 				{% endif %}
             </dd>
+
           </div>
+        {% endif %}
+        {% if customer is defined %}
           <div>
             <dt class="font-medium text-gray-900">Factuurgegevens</dt>
             <dd class="mt-2 text-gray-700">
               <address class="not-italic">
 			  	<span class="block font-bold">{{ customer.name }}</span>
                 <span class="block">{{ customer.address.line1 }}</span>
-                {% if customer.address.line2 %}<span class="block">{{ customer.address.line2 }}</span>{% endif %}
+                {% if customer.address.line2 is defined %}<span class="block">{{ customer.address.line2 }}</span>{% endif %}
                 <span class="block">{{ customer.address.postal_code }} {{ customer.address.city }}</span>
-                {% if organisation_kvk %}<span class="block">KVK-nummer: {{ organisation_kvk }}</span>{% endif %}
+                {% if customer_data.organisation_kvk is defined %}<span class="block">KVK-nummer: {{ customer_data.organisation_kvk }}</span>{% endif %}
               </address>
             </dd>
           </div>
+          {% endif %}
         </dl>
       </div>
       <div class="pt-10 border-t border-gray-200">

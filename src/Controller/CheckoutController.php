@@ -254,7 +254,7 @@ class CheckoutController extends AbstractController
             // Create MailPlus Contact
             try {
                 $mailPlusContactParams = [
-                    "update" => false,
+                    "update" => true,
                     "purge" => false,
                     'contact' => [
                         'externalId' => $customer->id,

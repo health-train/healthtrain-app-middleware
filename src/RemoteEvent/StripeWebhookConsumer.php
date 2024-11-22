@@ -35,22 +35,31 @@ final class StripeWebhookConsumer implements ConsumerInterface
                 break;
         }
     }
-    private function handleCheckoutSessionCompleted($checkoutSession)
+    private function handleCheckoutSessionCompleted($payload)
     {
-        $stripe = new \Stripe\StripeClient($checkoutSession->livemode ? $_ENV['STRIPE_SECRET_KEY'] : $_ENV['STRIPE_SECRET_KEY_TESTMODE']);
+        $stripe = new \Stripe\StripeClient($payload->livemode ? $_ENV['STRIPE_SECRET_KEY'] : $_ENV['STRIPE_SECRET_KEY_TESTMODE']);
+        $checkoutSession = $payload->data['object'];
+        $this->logger->info('Handling checkout session', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), $payload->data['object']));
 
         // Fetch associated customer
-        $customer = $stripe->customers->retrieve($checkoutSession->customer);
-        // Fetch associated subscription and productId
-        $subscription = $stripe->subscriptions->retrieve($checkoutSession->subscription);
-        $subscriptionProductId = $subscription->metadata->productId;
+        if(isset($checkoutSession['customer'])) {
+            $customer = $stripe->customers->retrieve($checkoutSession['customer']);
+            // Fetch associated subscription and productId
+            $subscription = $stripe->subscriptions->retrieve($checkoutSession['subscription']);
+            $subscriptionProductId = $subscription->metadata->productId;
 
-        if($customer && $subscription && $subscriptionProductId && $product = $this->productService->get($$subscriptionProductId)) {
-            // Update Stripe customer with custom fields
-            // $customer = $this->stripeService->updateCustomer($checkoutSession->customer, $checkoutSession->custom_fields, !$checkoutSession->liveMode);
+            if($subscription && $subscriptionProductId && $product = $this->productService->get($subscriptionProductId)) {
+                // Update Stripe customer with custom fields
+                $this->logger->info('Placeholder updateCustomer', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), [$customer, $checkoutSession['custom_fields'], !$payload->livemode]));
+                // $customer = $this->stripeService->updateCustomer($customer, $checkoutSession['custom_fields'], !$payload->livemode);
 
-            // Trigger automation for customer contact details
-            // $this->mailPlusService->triggerAutomation($customer, $product);
+                // Trigger automation for customer contact details
+                $this->logger->info('Placeholder triggerAutomation', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), [$customer, $product, !$payload->livemode]));
+                // $this->mailPlusService->triggerAutomation($customer, $product);
+            }
+        } else {
+            $this->logger->info('Checkout handling dropped: No customer id' . $checkoutSession['id'], array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), $checkoutSession));
         }
+
     }
 }

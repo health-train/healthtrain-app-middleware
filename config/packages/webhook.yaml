@@ -4,3 +4,6 @@ framework:
       stripe:
         service: App\Webhook\StripeRequestParser
         secret: '%env(STRIPE_WEBHOOK_SECRET)%'
+      stripe_test:
+        service: App\Webhook\StripeRequestParser
+        secret: '%env(STRIPE_WEBHOOK_SECRET_TESTMODE)%'

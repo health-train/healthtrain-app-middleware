@@ -115,7 +115,7 @@ class CheckoutController extends AbstractController
 
         if($customer && $subscription && $subscriptionProductId && $product = $productService->get($subscriptionProductId)) {
             // Update Stripe customer with custom fields
-            $customer = $stripeService->updateCustomer($customer, $checkoutSession->custom_fields, !$checkoutSession->liveMode);
+            $customer = $stripeService->updateCustomer($customer, $checkoutSession->custom_fields, $testmode);
 
             // Trigger automation for customer contact details
             $mailPlusService->triggerAutomation($customer, $product);

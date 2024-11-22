@@ -37,7 +37,7 @@ final class StripeWebhookConsumer implements ConsumerInterface
     }
     private function handleCheckoutSessionCompleted($checkoutSession)
     {
-        $stripe = new \Stripe\StripeClient($checkoutSession->testmode ? $_ENV['STRIPE_SECRET_KEY_TESTMODE'] : $_ENV['STRIPE_SECRET_KEY']);
+        $stripe = new \Stripe\StripeClient($checkoutSession->livemode ? $_ENV['STRIPE_SECRET_KEY'] : $_ENV['STRIPE_SECRET_KEY_TESTMODE']);
 
         // Fetch associated customer
         $customer = $stripe->customers->retrieve($checkoutSession->customer);

@@ -143,9 +143,8 @@ class CheckoutController extends AbstractController
         if ($request->query->get('prefilled_email')) {
             $portal_redirect_url = $portal_redirect_url . '?prefilled_email=' . $prefilled_email;
         }
-
+        $this->logger->info('Stripe billing portal public redirect', array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'prefilled_email' => $prefilled_email));
         return $this->redirect($portal_redirect_url);
-
     }
 
     /*
@@ -156,9 +155,10 @@ class CheckoutController extends AbstractController
         $testmode = $request->request->get('testmode') == true ? true : false;
         $stripe = new \Stripe\StripeClient($testmode ? $_ENV['STRIPE_SECRET_KEY_TESTMODE'] : $_ENV['STRIPE_SECRET_KEY']);
 
-        $stripeCustomerId = $request->request->get('stripeCustomerId');
+        $stripeCustomerId = $request->request->get('customerId');
         $stripeCheckoutSessionId = $request->request->get('sessionId');
         $redirectChannel = $request->request->get('redirect');
+        $return = $request->request->get('return') == 'url' ?? false;
 
         if (!$stripeCustomerId && !$stripeCheckoutSessionId) {
             echo 'Invalid request';
@@ -178,11 +178,21 @@ class CheckoutController extends AbstractController
                 $return_url = $_ENV['APP_WEBSITE'];
         }
 
-        $portal_session = $stripe->billingPortal->sessions->create([
-            'customer' => $stripeCustomerId,
-            'return_url' => $return_url,
-        ]);
-        $this->logger->info('Portal redirected for customer(' . $stripeCustomerId . ')', array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'customer' => $stripeCustomerId, 'return_url' => $return_url));
-        return $this->redirect(url: $portal_session->url);
+        try {
+            $portal_session = $stripe->billingPortal->sessions->create([
+                'customer' => $stripeCustomerId,
+                'return_url' => $return_url,
+            ]);
+            $this->logger->info('Stripe billing portal customer(' . $stripeCustomerId . ') redirect', array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'customer' => $stripeCustomerId, 'return_url' => $return_url));    
+            if($return == 'url') {
+                return $this->json(['status' => 'ok', 'url' => $portal_session->url]);
+            } else {
+                return $this->redirect($portal_session->url);
+            }
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage(), array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'customer' => $stripeCustomerId, 'body' => ['return' => $return, 'redirect' => $redirectChannel, 'stripeCustomerId' => $stripeCustomerId], 'testmode' => $testmode, 'exception' => $e));
+            return $this->json(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+
     }
 }

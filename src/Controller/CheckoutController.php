@@ -201,7 +201,7 @@ class CheckoutController extends AbstractController
             }
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage(), array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'customer' => $stripeCustomerId, 'body' => ['action' => $action, 'redirect' => $redirectChannel, 'stripeCustomerId' => $stripeCustomerId], 'testmode' => $testmode, 'exception' => $e));
-            return $this->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+            return $this->json(['status' => 'error', 'message' => $e->getMessage()], 400);
         }
 
     }

@@ -10,6 +10,7 @@
 /var/
 /vendor/
 .DS_Store
+src/.DS_Store
 ###< symfony/framework-bundle ###
 
 ###> symfony/webpack-encore-bundle ###

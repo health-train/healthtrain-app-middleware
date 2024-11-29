@@ -5,6 +5,12 @@ framework:
 
     # Note that the session will be started ONLY if you read or write from it.
     session: true
+    http_client:
+        scoped_clients:
+            slack.client:
+                base_uri: '%env(SLACK_BOT_WEBHOOK_URL)%'
+                headers:
+                    Accept: 'application/json; charset=utf-8'
 
     #esi: true
     #fragments: true

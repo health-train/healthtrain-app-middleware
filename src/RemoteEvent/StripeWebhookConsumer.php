@@ -4,6 +4,7 @@ namespace App\RemoteEvent;
 
 use App\Service\ProductService;
 use App\Service\MailPlusService;
+use App\Service\SlackService;
 use App\Service\StripeService;
 use Symfony\Component\RemoteEvent\Attribute\AsRemoteEventConsumer;
 use Symfony\Component\RemoteEvent\Consumer\ConsumerInterface;
@@ -13,12 +14,13 @@ use Psr\Log\LoggerInterface;
 #[AsRemoteEventConsumer('stripe')]
 final class StripeWebhookConsumer implements ConsumerInterface
 {
-    public function __construct(private LoggerInterface $logger, private ProductService $productService, private StripeService $stripeService, private MailPlusService $mailPlusService)
+    public function __construct(private LoggerInterface $logger, private ProductService $productService, private StripeService $stripeService, private MailPlusService $mailPlusService, private SlackService $slackService)
     {
         $this->logger = $logger;
         $this->stripeService = $stripeService;
         $this->mailPlusService = $mailPlusService;
         $this->productService = $productService;
+        $this->slackService = $slackService;
     }
 
     public function consume(RemoteEvent $event): void
@@ -42,23 +44,29 @@ final class StripeWebhookConsumer implements ConsumerInterface
         $this->logger->info('Handling checkout session', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), $payload->data['object']));
 
         // Fetch associated customer
-        if(isset($checkoutSession['customer'])) {
+        if (isset($checkoutSession['customer'])) {
             $customer = $stripe->customers->retrieve($checkoutSession['customer']);
             // Fetch associated subscription and productId
             $subscription = $stripe->subscriptions->retrieve($checkoutSession['subscription']);
             $subscriptionProductId = $subscription->metadata->productId;
 
-            if($subscription && $subscriptionProductId && $product = $this->productService->get($subscriptionProductId)) {
+            if ($subscription && $subscriptionProductId && $product = $this->productService->get($subscriptionProductId)) {
                 // Update Stripe customer with custom fields
-                $this->logger->info('Placeholder updateCustomer', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), [$customer, $checkoutSession['custom_fields'], !$payload->livemode]));
-                // $customer = $this->stripeService->updateCustomer($customer, $checkoutSession['custom_fields'], !$payload->livemode);
+                $this->logger->info('updateCustomer', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), [$customer, $checkoutSession['custom_fields'], !$payload->livemode]));
+                $customer = $this->stripeService->updateCustomer($customer, $checkoutSession['custom_fields'], !$payload->livemode);
 
                 // Trigger automation for customer contact details
-                $this->logger->info('Placeholder triggerAutomation', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), [$customer, $product, !$payload->livemode]));
-                // $this->mailPlusService->triggerAutomation($customer, $product);
+                $this->logger->info('triggerAutomation', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), [$customer, $product, !$payload->livemode]));
+                $this->mailPlusService->triggerAutomation($customer, $product);
+
+                // Send alerts
+                $this->slackService->sendMessage(['message' => "Nieuwe klant aangemeld ✅", 'customer' => $customer, 'subscription' => $subscription, 'testmode' => !$payload->livemode], 'stripe');
+                $this->logger->info('Checkout session success: ' . $checkoutSession->id, array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'checkout_session_id' => $checkoutSession->id, 'testmode' => !$payload->livemode));
             }
         } else {
-            $this->logger->info('Checkout handling dropped: No customer id' . $checkoutSession['id'], array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), $checkoutSession));
+            // Send alerts
+            $this->slackService->sendMessage(['message' => "Nieuwe klant aangemeld (🚨 Afhandeling niet doorlopen)"]);
+            $this->logger->info('Checkout handling dropped: No customer id' . $checkoutSession['id'], array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), $checkoutSession, 'testmode' => !$payload->livemode));
         }
 
     }

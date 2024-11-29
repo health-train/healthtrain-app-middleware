@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Service\MailPlusService;
 use App\Service\StripeService;
 use App\Service\ProductService;
 use Psr\Log\LoggerInterface;
@@ -85,7 +84,7 @@ class CheckoutController extends AbstractController
     /*
      * session result: success
      */
-    public function session_success(Request $request, string $checkout_session_id, MailPlusService $mailPlusService, StripeService $stripeService, ProductService $productService): Response
+    public function session_success(Request $request, string $checkout_session_id): Response
     {
         $testmode = $request->query->get('testmode') == true ? true : false;
 
@@ -109,19 +108,6 @@ class CheckoutController extends AbstractController
                 $customerData['organisation_kvk'] = $custom_field->numeric->value;
             }
         }
-
-        // Fetch associated subscription and productId
-        $subscriptionProductId = $subscription->metadata->productId;
-
-        if ($customer && $subscription && $subscriptionProductId && $product = $productService->get($subscriptionProductId)) {
-            // Update Stripe customer with custom fields
-            $customer = $stripeService->updateCustomer($customer, $checkoutSession->custom_fields, $testmode);
-
-            // Trigger automation for customer contact details
-            $mailPlusService->triggerAutomation($customer, $product);
-        }
-
-        $this->logger->info('Checkout session success: ' . $checkoutSession->id, array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'checkout_session_id' => $checkoutSession->id, 'testmode' => $testmode));
 
         return $this->render('checkout/success.html.twig', [
             'testmode' => $testmode ?? false,

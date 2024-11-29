@@ -58,6 +58,7 @@ class MailPlusService
             $mailPlusAutomationParams = ['externalContactId' => $customer->id];
             $OAuthRequest->request($this->oauthClient, 'POST', 'https://restapi.mailplus.nl/integrationservice/automation/trigger/'. $product->mailplus->automationId, [], $mailPlusAutomationParams);
             $this->logger->info('Automation triggered ' . $customer->id, array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), $customer->id));
+            return true;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage(), array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'customer_id' => $customer->id, 'body' => $mailPlusAutomationParams, 'exception' => $e));
         }

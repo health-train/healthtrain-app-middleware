@@ -15,7 +15,7 @@ class DefaultController extends AbstractController
 
     public function slackTest(SlackService $slackService): Response
     {
-        $slackService->sendMessage('Test message');
+        $slackService->sendMessage(['message' => 'Test message']);
         return $this->redirect($_ENV['APP_WEBSITE']);
     }
 }

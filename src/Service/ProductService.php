@@ -7,7 +7,6 @@ class ProductService
 {
 
     private $products = [
-
         'htp_live_pCiBce4AF6XXzH2mn' => [
             'healthtrain' => [
                 'productId' => 'htp_live_pCiBce4AF6XXzH2mn',

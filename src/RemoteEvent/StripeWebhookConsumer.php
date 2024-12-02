@@ -52,11 +52,11 @@ final class StripeWebhookConsumer implements ConsumerInterface
 
             if ($subscription && $subscriptionProductId && $product = $this->productService->get($subscriptionProductId)) {
                 // Update Stripe customer with custom fields
-                $this->logger->info('updateCustomer', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), [$customer, $checkoutSession['custom_fields'], !$payload->livemode]));
+                $this->logger->info('updateCustomer', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), 'customer' => $customer, 'body' => $checkoutSession['custom_fields'], 'testmode' => !$payload->livemode));
                 $customer = $this->stripeService->updateCustomer($customer, $checkoutSession['custom_fields'], !$payload->livemode);
 
                 // Trigger automation for customer contact details
-                $this->logger->info('triggerAutomation', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), [$customer, $product, !$payload->livemode]));
+                $this->logger->info('triggerAutomation', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), 'customer' => $customer, 'product' => $product, 'testmode' => !$payload->livemode));
                 $this->mailPlusService->triggerAutomation($customer, $product);
 
                 // Send alerts

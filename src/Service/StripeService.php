@@ -106,7 +106,7 @@ class StripeService
             ],
             'billing_address_collection' => "required",
             'phone_number_collection' => [
-                'enabled' => false
+                'enabled' => true
             ],
             'custom_fields' => [
                 [
@@ -166,14 +166,15 @@ class StripeService
 
         // Update customer to save contact name to customer metadata
         try {
-            $customer = $stripe->customers->update($customer->id, [
+            $body = [
                 'name' => $customerData['organisation_name'] ?? $customer->name,
                 'metadata' => $customerData
-            ]);
-            $this->logger->info('Stripe customer updated ' . $customer->id, array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), $customer->id, 'body' => $data, 'testmode' => $testmode));
+            ];
+            $customer = $stripe->customers->update($customer->id, $body);
+            $this->logger->info('Stripe customer updated ' . $customer->id, array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'customer' => $customer, 'body' => $body, 'testmode' => $testmode));
             return $customer;
         } catch (\Exception $e) {
-            $this->logger->error($e->getMessage(), array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'customer' => $customer->id, 'body' => $data, 'testmode' => $testmode, 'exception' => $e));
+            $this->logger->error($e->getMessage(), array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'customer' => $customer, 'body' => $body, 'testmode' => $testmode, 'exception' => $e));
         }
 
         return false;
@@ -183,7 +184,6 @@ class StripeService
     {
         $stripe = new \Stripe\StripeClient($testmode ? $_ENV['STRIPE_SECRET_KEY_TESTMODE'] : $_ENV['STRIPE_SECRET_KEY']);
 
-        // Update customer to save contact name to customer metadata
         try {
             $subscriptionData = $stripe->subscriptions->retrieve($subscriptionId);
             if($subscriptionData->metadata->productId) {

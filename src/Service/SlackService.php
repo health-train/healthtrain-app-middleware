@@ -34,15 +34,11 @@ class SlackService
                                 ],
                                 [
                                     "type" => "mrkdwn",
-                                    "text" => "*Product*\n" . ($data['subscription']['items']['data'][0]['plan']['nickname'] ?? "Onbekend") . "(". ($data['subscription']['items']['data'][0]['price']['lookup_key'] ?? "Onbekend") . ")"
+                                    "text" => "*Product*\n" . ($data['subscription']['items']['data'][0]['plan']['nickname'] ?? "Onbekend") . " [". ($data['subscription']['items']['data'][0]['price']['lookup_key'] ?? "Onbekend") . "]"
                                 ],
                                 [
                                     "type" => "mrkdwn",
                                     "text" => "*Licenties*\n" . $data['subscription']['items']['data'][0]['quantity'] ?? "Onbekend"
-                                ],
-                                [
-                                    "type" => "mrkdwn",
-                                    "text" => "*Omzet*\n€ " . number_format(($data['subscription']['items']['data'][0]['plan']['amount'] / 100), 2, ",", ".") ?? "Onbekend"
                                 ],
                                 [
                                     "type" => "mrkdwn",

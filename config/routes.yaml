@@ -170,10 +170,15 @@ webhooks:
     resource: '@FrameworkBundle/Resources/config/routing/webhook.xml'
     prefix: /webhooks/
 
-slack_test:
-    path: /slack
-    controller: App\Controller\DefaultController::slackTest
-    methods: GET|HEAD
+# test_slack:
+#     path: /test/slack
+#     controller: App\Controller\DefaultController::slackTest
+#     methods: GET|HEAD
+
+# test_stripe:
+#     path: /test/stripe
+#     controller: App\Controller\DefaultController::stripeTest
+#     methods: GET|HEAD
 
 index:
     path: /

@@ -41,7 +41,7 @@ final class StripeWebhookConsumer implements ConsumerInterface
     {
         $stripe = new \Stripe\StripeClient($payload->livemode ? $_ENV['STRIPE_SECRET_KEY'] : $_ENV['STRIPE_SECRET_KEY_TESTMODE']);
         $checkoutSession = $payload->data['object'];
-        $this->logger->info('Handling checkout session', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), $payload->data['object']));
+        $this->logger->info('Handling checkout session', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), 'checkout' => $payload->data['object']));
 
         // Fetch associated customer
         if (isset($checkoutSession['customer'])) {
@@ -52,8 +52,8 @@ final class StripeWebhookConsumer implements ConsumerInterface
 
             if ($subscription && $subscriptionProductId && $product = $this->productService->get($subscriptionProductId)) {
                 // Update Stripe customer with custom fields
-                $this->logger->info('updateCustomer', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), 'customer' => $customer, 'body' => $checkoutSession['custom_fields'], 'testmode' => !$payload->livemode));
-                $customer = $this->stripeService->updateCustomer($customer, $checkoutSession['custom_fields'], !$payload->livemode);
+                // $this->logger->info('updateCustomer', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), 'customer' => $customer, 'body' => $checkoutSession['custom_fields'], 'testmode' => !$payload->livemode));
+                // $customer = $this->stripeService->updateCustomer($customer, $checkoutSession['custom_fields'], !$payload->livemode);
 
                 // Trigger automation for customer contact details
                 $this->logger->info('triggerAutomation', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), 'customer' => $customer, 'product' => $product, 'testmode' => !$payload->livemode));

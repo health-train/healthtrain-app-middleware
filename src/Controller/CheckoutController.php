@@ -84,7 +84,7 @@ class CheckoutController extends AbstractController
     /*
      * session result: success
      */
-    public function session_success(Request $request, string $checkout_session_id): Response
+    public function session_success(Request $request, string $checkout_session_id, StripeService $stripeService): Response
     {
         $testmode = $request->query->get('testmode') == true ? true : false;
 
@@ -108,6 +108,8 @@ class CheckoutController extends AbstractController
                 $customerData['organisation_kvk'] = $custom_field->numeric->value;
             }
         }
+
+        $stripeService->updateCustomer($customer, $checkoutSession['custom_fields'], $testmode);
 
         return $this->render('checkout/success.html.twig', [
             'testmode' => $testmode ?? false,

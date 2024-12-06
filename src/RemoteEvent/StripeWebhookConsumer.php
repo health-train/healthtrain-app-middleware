@@ -61,12 +61,12 @@ final class StripeWebhookConsumer implements ConsumerInterface
 
                 // Send alerts
                 $this->slackService->sendMessage(['message' => "Nieuwe klant aangemeld ✅", 'customer' => $customer, 'subscription' => $subscription, 'testmode' => !$payload->livemode], 'stripe');
-                $this->logger->info('Checkout session success: ' . $checkoutSession->id, array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'checkout_session_id' => $checkoutSession->id, 'testmode' => !$payload->livemode));
+                $this->logger->info('Checkout session success: ' . $checkoutSession->id, array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'checkout_session' => $checkoutSession, 'testmode' => !$payload->livemode));
             }
         } else {
             // Send alerts
             $this->slackService->sendMessage(['message' => "Nieuwe klant aangemeld (🚨 Afhandeling niet doorlopen)"]);
-            $this->logger->info('Checkout handling dropped: No customer id' . $checkoutSession['id'], array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), $checkoutSession, 'testmode' => !$payload->livemode));
+            $this->logger->info('Checkout handling dropped: No customer id' . $checkoutSession['id'], array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), 'checkout_session' => $checkoutSession, 'testmode' => !$payload->livemode));
         }
 
     }

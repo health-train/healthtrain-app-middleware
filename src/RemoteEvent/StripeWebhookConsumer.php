@@ -58,11 +58,12 @@ final class StripeWebhookConsumer implements ConsumerInterface
                 // Trigger automation for customer contact details
                 $this->logger->info('triggerAutomation', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), 'customer' => $customer, 'product' => $product, 'testmode' => !$payload->livemode));
                 $this->mailPlusService->triggerAutomation($customer, $product);
-
-                // Send alerts
-                $this->slackService->sendMessage(['message' => "Nieuwe klant aangemeld ✅", 'customer' => $customer, 'subscription' => $subscription, 'testmode' => !$payload->livemode], 'stripe');
-                $this->logger->info('Checkout session success: ' . $checkoutSession->id, array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'checkout_session' => $checkoutSession, 'testmode' => !$payload->livemode));
             }
+            
+            // Send alerts
+            $this->slackService->sendMessage(['message' => "Nieuwe klant aangemeld ✅", 'customer' => $customer, 'subscription' => $subscription, 'testmode' => !$payload->livemode], 'stripe');
+            $this->logger->info('Checkout session success: ' . $checkoutSession->id, array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'checkout_session' => $checkoutSession, 'testmode' => !$payload->livemode));
+
         } else {
             // Send alerts
             $this->slackService->sendMessage(['message' => "Nieuwe klant aangemeld (🚨 Afhandeling niet doorlopen)"]);

@@ -13,7 +13,8 @@ class ProductService
                 'identifier' => 'HealthTrain SOM',
             ],
             'stripe' => [
-                'priceId' => 'price_1QFvPlAU7J6SUXutO92GxepP',
+                'priceId' => 'price_1QZaG0AU7J6SUXutWSzBW6WD',
+                'paymentMethods' => 'pmc_1QNGRLAU7J6SUXutucJVChnS'
             ],
             'mailplus' => [
                 'automationId' => 'bc0a8795-536c-432b-83ef-bcb46944eb0f'
@@ -27,6 +28,7 @@ class ProductService
             ],
             'stripe' => [
                 'priceId' => 'price_1QD4l5AU7J6SUXutqQV2xIkg',
+                'paymentMethods' => 'pmc_1QFP2jAU7J6SUXutnqqCXyO3'
             ],
             'mailplus' => [
                 'automationId' => '61fa1a1c-ba87-484d-8890-39868d538989'

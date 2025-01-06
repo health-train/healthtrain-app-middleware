@@ -105,6 +105,7 @@ class StripeService
                 'terms_of_service' => "required"
             ],
             'billing_address_collection' => "required",
+            'payment_method_configuration' => $product->stripe->paymentMethods,
             'phone_number_collection' => [
                 'enabled' => true
             ],

@@ -57,7 +57,9 @@ final class StripeWebhookConsumer implements ConsumerInterface
 
                 // Trigger automation for customer contact details
                 $this->logger->info('triggerAutomation', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), 'customer' => $customer, 'product' => $product, 'testmode' => !$payload->livemode));
-                $this->mailPlusService->triggerAutomation($customer, $product);
+                if($product->mailplus) {
+                    $this->mailPlusService->triggerAutomation($customer, $product);
+                }
             }
             
             // Send alerts

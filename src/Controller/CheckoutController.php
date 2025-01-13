@@ -35,6 +35,9 @@ class CheckoutController extends AbstractController
         $testmode = $request->query->get('testmode') == true ? true : false;
 
         switch ($plan) {
+            case "hwo":
+                $view = "checkout/plan-hwo.html.twig";
+                break;
             case "spotonmedics":
                 $view = "checkout/plan-spotonmedics.html.twig";
                 break;

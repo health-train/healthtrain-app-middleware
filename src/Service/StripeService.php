@@ -47,7 +47,10 @@ class StripeService
         }
 
         // Config: Return URL for cancelled checkouts
-        $cancelled_return_url = $this->urlgenerator->generate('checkout_plans_index', [], UrlGeneratorInterface::ABSOLUTE_URL);
+        $cancelled_return_url = $this->urlgenerator->generate('checkout_plans', ['plan' => $product->healthtrain->plan], UrlGeneratorInterface::ABSOLUTE_URL);
+        if($testmode) {
+            $cancelled_return_url .= "?testmode=true";  
+        }
 
         // Config: Return URL for successful checkouts
         $success_params = ['checkout_session_id' => '{CHECKOUT_SESSION_ID}'];

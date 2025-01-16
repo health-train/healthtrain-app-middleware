@@ -1,0 +1,163 @@
+---
+# EPD config: Intramed
+- lookup_key: epd_intramed_001
+  name: epd_intramed_001
+  metadata:
+    ClientDetailsDeeplinkAvailable: unavailable
+    ClientDetailsDeeplinkEnabled: false
+    EPDType: Intramed
+    ProductName: "HealthTrain Platform i.c.m. Intramed Compleet"
+    ViewAllClientsEnabled: true
+
+# EPD config: SpotOnMedics FysioOne
+- lookup_key: epd_spotonmedics_001
+  name: epd_spotonmedics_001
+  metadata:
+    ClientDetailsDeeplinkAvailable: available
+    ClientDetailsDeeplinkEnabled: true
+    EPDType: SpotOnMedics
+    ProductName: "HealthTrain Platform i.c.m. SpotOnMedics FysioOne"
+    ViewAllClientsEnabled: true
+
+# EPD config: Fysiomanager
+- lookup_key: epd_fysiomanager_001
+  name: epd_fysiomanager_001
+  metadata:
+    ClientDetailsDeeplinkAvailable: available
+    ClientDetailsDeeplinkEnabled: true
+    EPDType: Fysiomanager
+    ProductName: "HealthTrain Platform i.c.m. Fysiomanager"
+    ViewAllClientsEnabled: true
+
+# EPD config: Flux
+- lookup_key: epd_flux_001
+  name: epd_flux_001
+  metadata:
+    ClientDetailsDeeplinkAvailable: available
+    ClientDetailsDeeplinkEnabled: true
+    EPDType: Flux
+    ProductName: "HealthTrain Platform i.c.m. flux"
+    ViewAllClientsEnabled: true
+
+# EPD config: Standalone
+- lookup_key: epd_standalone_001
+  name: epd_standalone_001
+  metadata:
+    ClientDetailsDeeplinkAvailable: unavailable
+    ClientDetailsDeeplinkEnabled: false
+    EPDType: StandAlone
+    ProductName: "HealthTrain Platform Standalone"
+    ViewAllClientsEnabled: true
+
+# Module: Activity tracking
+- lookup_key: module_activity_upsell_001
+  name: module_activity_upsell_001
+  metadata:
+    ActivityTrackingAvailable: upsell
+    ActivityTrackingEnabled: false
+- lookup_key: module_activity_available_001
+  name: module_activity_available_001
+  metadata:
+    ActivityTrackingAvailable: available
+    ActivityTrackingEnabled: true
+
+# Module: Appointments
+- lookup_key: module_appointments_upsell_001
+  name: module_appoint_upsell_001
+  metadata:
+    AppointmentsAvailable: upsell
+    AppointmentsEnabled: false
+- lookup_key: module_appointments_available_001
+  name: module_appoint_available_001
+  metadata:
+    AppointmentsAvailable: available
+    AppointmentsEnabled: true
+
+# Module: Invites
+- lookup_key: module_invite_users_epd_001
+  name: module_invite_users_epd_001
+  metadata:
+    AppointmentsAvailable: available
+    AppointmentsEnabled: true
+- lookup_key: module_invite_users_manual_001
+  name: module_invite_users_manual_001
+  metadata:
+    AppointmentsAvailable: available
+    AppointmentsEnabled: true
+
+# Module: Messages
+- lookup_key: module_messages_upsell_001
+  name: module_messages_upsell_001
+  metadata:
+    MessagesAvailable: upsell
+    MessagesEnabled: false
+- lookup_key: module_messages_available_001
+  name: module_messages_available_001
+  metadata:
+    MessagesAvailable: available
+    MessagesEnabled: true
+
+# Module: Notifications
+- lookup_key: module_notifications_upsell_001
+  name: module_notific_upsell_001
+  metadata:
+    AppointConfirmAvailable: upsell
+    AppointConfirmChannelOptions: None,Push
+    AppointConfirmChannels: Push
+    AppointConfirmEnabled: false
+    AppointRemindAvailable: upsell
+    AppointRemindChannelOptions: None,Push
+    AppointRemindChannels: Push
+    AppointRemindEnabled: false
+    NotificationsAvailable: upsell
+    NotificationsEnabled: false
+- lookup_key: module_notifications_pushmail_001
+  name: module_notific_pushmail_001
+  metadata:
+    AppointConfirmAvailable: available
+    AppointConfirmChannelOptions: None,Push,PushMail
+    AppointConfirmChannels: PushMail
+    AppointConfirmEnabled: true
+    AppointRemindAvailable: available
+    AppointRemindChannelOptions: None,Push,PushMail
+    AppointRemindChannels: PushMail
+    AppointRemindEnabled: true
+    NotificationsAvailable: available
+    NotificationsEnabled: true
+- lookup_key: module_notifications_pushmailms_001
+  name: module_notific_pushmailsms_001
+  metadata:
+    AppointConfirmAvailable: available
+    AppointConfirmChannelOptions: None,Push,PushMail,PushMailSMS
+    AppointConfirmChannels: PushMail
+    AppointConfirmEnabled: true
+    AppointRemindAvailable: available
+    AppointRemindChannelOptions: None,Push,PushMail,PushMailSMS
+    AppointRemindChannels: PushMail
+    AppointRemindEnabled: true
+    NotificationsAvailable: available
+    NotificationsEnabled: true
+
+# Module: Protocols
+- lookup_key: module_protocols_upsell_001
+  name: module_protocols_upsell_001
+  metadata:
+    ProtocolsAvailable: upsell
+    ProtocolsEnabled: false
+- lookup_key: module_protocols_available_001
+  name: module_protocols_available_001
+  metadata:
+    ProtocolsAvailable: available
+    ProtocolsEnabled: true
+    
+# Module: Videocalls
+- lookup_key: module_videocalls_upsell_001
+  name: module_videocalls_upsell_001
+  metadata:
+    VideocallsAvailable: upsell
+    VideocallsEnabled: false
+- lookup_key: module_videocalls_available_001
+  name: module_videocalls_available_001
+  metadata:
+    VideocallsAvailable: available
+    VideocallsEnabled: true

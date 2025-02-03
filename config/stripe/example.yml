@@ -1,0 +1,11 @@
+- lookup_key: example_feature1
+  name: Example_Feature_1
+  metadata:
+    key1: available
+    key2: true
+
+- lookup_key: example_feature2
+  name: Example_Feature_2
+  metadata:
+    key1: unavailable
+    key2: true

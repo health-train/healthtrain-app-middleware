@@ -33,18 +33,13 @@ class CheckoutController extends AbstractController
     public function plans(Request $request, string $plan = "default"): Response
     {
         $testmode = $request->query->get('testmode') == true ? true : false;
+        $template = "checkout/plan-". $plan. ".html.twig";
 
-        switch ($plan) {
-            case "hwo":
-                $view = "checkout/plan-hwo.html.twig";
-                break;
-            case "spotonmedics":
-                $view = "checkout/plan-spotonmedics.html.twig";
-                break;
-            default:
-                return $this->redirect(url: $_ENV['APP_WEBSITE_PLANS']);
+        if(!$this->container->get('twig')->getLoader()->exists($template)){
+            throw $this->createNotFoundException('The plan does not exist');
         }
-        return $this->render($view, [
+
+        return $this->render($template, [
             'testmode' => $testmode,
         ]);
     }

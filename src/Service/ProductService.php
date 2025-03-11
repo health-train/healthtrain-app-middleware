@@ -7,6 +7,40 @@ class ProductService
 {
 
     private $products = [
+        'htp_live_yXq6sCHEKvHfAYkrqWCv' => [
+            'healthtrain' => [
+                'productId' => 'htp_live_yXq6sCHEKvHfAYkrqWCv',
+                'identifier' => 'HealthTrain Standalone',
+                'plan' => 'standalone',
+                'onboarding' => [
+                    'createOrg' => false,
+                    'apiClientId' => 'standalone'
+                ]
+            ],
+            'stripe' => [
+                'priceId' => 'price_1R1YziAU7J6SUXuteXP3MBRG',
+                'paymentMethods' => 'pmc_1QNGRLAU7J6SUXutucJVChnS'
+            ],
+            'mailplus' => false,
+            'testmode' => false
+        ],
+        'htp_test_yXq6sCHEKvHfAYkrqWCv' => [
+            'healthtrain' => [
+                'productId' => 'htp_test_yXq6sCHEKvHfAYkrqWCv',
+                'identifier' => 'HealthTrain Standalone Test',
+                'plan' => 'standalone',
+                'onboarding' => [
+                    'createOrg' => false,
+                    'apiClientId' => 'standalone'
+                ]
+            ],
+            'stripe' => [
+                'priceId' => 'price_1R1ZeBAU7J6SUXutGcxZcf2H',
+                'paymentMethods' => 'pmc_1QFP2jAU7J6SUXutnqqCXyO3'
+            ],
+            'mailplus' => false,
+            'testmode' => false
+        ],
         'hwo_live_syK2z4Y9Qz8VQYraA' => [
             'healthtrain' => [
                 'productId' => 'hwo_live_syK2z4Y9Qz8VQYraA',

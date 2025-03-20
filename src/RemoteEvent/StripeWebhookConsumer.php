@@ -3,6 +3,7 @@
 namespace App\RemoteEvent;
 
 use App\Service\ProductService;
+use App\Service\HealthTrainPlatformService;
 use App\Service\MailPlusService;
 use App\Service\SlackService;
 use App\Service\StripeService;
@@ -14,9 +15,10 @@ use Psr\Log\LoggerInterface;
 #[AsRemoteEventConsumer('stripe')]
 final class StripeWebhookConsumer implements ConsumerInterface
 {
-    public function __construct(private LoggerInterface $logger, private ProductService $productService, private StripeService $stripeService, private MailPlusService $mailPlusService, private SlackService $slackService)
+    public function __construct(private LoggerInterface $logger, private HealthTrainPlatformService $healthTrainPlatformService, private ProductService $productService, private StripeService $stripeService, private MailPlusService $mailPlusService, private SlackService $slackService)
     {
         $this->logger = $logger;
+        $this->healthTrainPlatformService = $healthTrainPlatformService;
         $this->stripeService = $stripeService;
         $this->mailPlusService = $mailPlusService;
         $this->productService = $productService;
@@ -37,7 +39,7 @@ final class StripeWebhookConsumer implements ConsumerInterface
                 break;
         }
     }
-    private function handleCheckoutSessionCompleted($payload)
+    private function handleCheckoutSessionCompleted($payload): void
     {
         $stripe = new \Stripe\StripeClient($payload->livemode ? $_ENV['STRIPE_SECRET_KEY'] : $_ENV['STRIPE_SECRET_KEY_TESTMODE']);
         $checkoutSession = $payload->data['object'];
@@ -48,17 +50,21 @@ final class StripeWebhookConsumer implements ConsumerInterface
             $customer = $stripe->customers->retrieve($checkoutSession['customer']);
             // Fetch associated subscription and productId
             $subscription = $stripe->subscriptions->retrieve($checkoutSession['subscription']);
-            $subscriptionProductId = $subscription->metadata->productId;
+            $subscriptionProductId = $subscription->metadata->htStripeProductId;
 
-            if ($subscription && $subscriptionProductId && $product = $this->productService->get($subscriptionProductId)) {
+            if ($subscription && $subscriptionProductId && $product = $this->productService->getProduct($subscriptionProductId)) {
+                $plan = $this->productService->getPlan($product['healthtrain']['plan']);
                 // Update Stripe customer with custom fields
                 // $this->logger->info('updateCustomer', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), 'customer' => $customer, 'body' => $checkoutSession['custom_fields'], 'testmode' => !$payload->livemode));
                 // $customer = $this->stripeService->updateCustomer($customer, $checkoutSession['custom_fields'], !$payload->livemode);
 
                 // Trigger automation for customer contact details
                 $this->logger->info('triggerAutomation', array('properties' => array('type' => 'webhooks', 'action' => 'stripe'), 'customer' => $customer, 'product' => $product, 'testmode' => !$payload->livemode));
-                if($product->mailplus) {
+                if($product['mailplus']) {
                     $this->mailPlusService->triggerAutomation($customer, $product);
+                }
+                if($plan['organisationOnboarding'] === true) {
+                    $this->healthTrainPlatformService->createOrg($customer, $product);
                 }
             }
             

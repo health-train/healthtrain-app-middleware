@@ -15,22 +15,24 @@ checkout_plans_index:
         domain: '%domain%'
 
 checkout_plans:
-    path: /plans/{plan}
+    path: /plans/{planKey}
     controller: App\Controller\CheckoutController::plans
     methods: GET
     host: "checkout.{domain}"
     defaults:
         domain: '%domain%'
+        planKey: 'standalone'
     requirements:
         domain: '%domain%'
 
 checkout_portal:
-    path: /portal
+    path: /portal{configKey}
     controller: App\Controller\CheckoutController::portal_redirect
     methods: GET
     host: "checkout.{domain}"
     defaults:
         domain: '%domain%'
+        configKey: 'ht2'
     requirements:
         domain: '%domain%'
 
@@ -55,12 +57,13 @@ checkout_create_session:
         domain: '%domain%'
 
 checkout_create_session_success:
-    path: /session/success/{checkout_session_id}
+    path: /session/success/{planKey}/{checkout_session_id}
     controller: App\Controller\CheckoutController::session_success
     methods: GET
     host: "checkout.{domain}"
     defaults:
         domain: '%domain%'
+        planKey: 'standalone'
     requirements:
         domain: '%domain%'
 

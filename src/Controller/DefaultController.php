@@ -2,6 +2,7 @@
 // src/Controller/DefaultController.php
 namespace App\Controller;
 
+use App\Service\HealthTrainPlatformService;
 use App\Service\SlackService;
 use App\Service\StripeService;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,4 +33,20 @@ class DefaultController extends AbstractController
 
         return $this->redirect($_ENV['APP_WEBSITE']);
     }
+
+    public function onboardTest(HealthTrainPlatformService $healthTrainPlatformService): Response
+    {
+
+        // $stripe = new \Stripe\StripeClient($_ENV['STRIPE_HT1_TESTMODE_SECRET_KEY']);
+    
+        // $customer = $stripe->customers->retrieve('cus_RymYxgo0nXCeJW');
+        // // print_r($customer);
+        // $org = $healthTrainPlatformService->createOrg($customer, 'intramed-pilot', true);
+        // print_r($org);
+
+        // exit;
+ 
+        return $this->redirect($_ENV['APP_WEBSITE']);
+    }
+    
 }

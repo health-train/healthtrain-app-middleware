@@ -60,7 +60,7 @@ class MailPlusService
             $this->logger->info('Automation triggered ' . $customer->id, array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), $customer->id));
             return true;
         } catch (\Exception $e) {
-            $this->logger->error($e->getMessage(), array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'customer_id' => $customer->id, 'body' => $mailPlusAutomationParams, 'exception' => $e));
+            $this->logger->error($e->getMessage(), array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'customer_id' => $customer->id, 'exception' => $e));
         }
         return false;
     }

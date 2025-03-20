@@ -15,6 +15,32 @@ class SlackService
     {
         $slackData = [];
         switch ($format) {
+            case "ht_org":
+                $slackData = [
+                    'blocks' => [
+                        [
+                            "type" => "section",
+                            "text" => [
+                                "type" => "mrkdwn",
+                                "text" => $data['message']
+                            ]
+                        ],
+                        [
+                            "type" => "section",
+                            "fields" => [
+                                [
+                                    "type" => "mrkdwn",
+                                    "text" => "*Bedrijfsnaam*\n" . $data['onboarding']['organization']['name'] ?? "Onbekend"
+                                ],
+                                [
+                                    "type" => "mrkdwn",
+                                    "text" => "*Telefoonnummer*\n" . substr($data['onboarding']['therapistAdmin']['phoneNumber'], 0, 5)."*****" ?? "Onbekend"
+                                ]
+                            ]
+                        ]
+                    ]
+                ];
+                break;
             case "stripe":
                 $slackData = [
                     'blocks' => [

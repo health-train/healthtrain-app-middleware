@@ -8,18 +8,16 @@
     EPDType: Intramed
     ProductName: "HealthTrain Platform i.c.m. Intramed Compleet"
     ViewAllClientsEnabled: true
-    SkipEpdOnboarding: false
 
 # EPD config: SpotOnMedics FysioOne
 - lookup_key: epd_spotonmedics_001
   name: epd_spotonmedics_001
   metadata:
-    ClientDetailsDeeplinkAvailable: available
-    ClientDetailsDeeplinkEnabled: true
+    ClientDetailsDeeplinkAvailable: unavailable
+    ClientDetailsDeeplinkEnabled: false
     EPDType: SpotOnMedics
     ProductName: "HealthTrain Platform i.c.m. SpotOnMedics FysioOne"
     ViewAllClientsEnabled: true
-    SkipEpdOnboarding: false
 
 # EPD config: Fysiomanager
 - lookup_key: epd_fysiomanager_001
@@ -30,7 +28,6 @@
     EPDType: Fysiomanager
     ProductName: "HealthTrain Platform i.c.m. Fysiomanager"
     ViewAllClientsEnabled: true
-    SkipEpdOnboarding: false
 
 # EPD config: Flux
 - lookup_key: epd_flux_001
@@ -41,7 +38,6 @@
     EPDType: Flux
     ProductName: "HealthTrain Platform i.c.m. flux"
     ViewAllClientsEnabled: true
-    SkipEpdOnboarding: false
 
 # EPD config: Standalone
 - lookup_key: epd_standalone_001
@@ -52,7 +48,6 @@
     EPDType: StandAlone
     ProductName: "HealthTrain Platform Standalone"
     ViewAllClientsEnabled: true
-    SkipEpdOnboarding: true
 
 # Module: Activity tracking
 - lookup_key: module_activity_upsell_001
@@ -63,6 +58,10 @@
   name: module_activity_available_001
   metadata:
     ActivityTrackingAvailable: available
+- lookup_key: module_activity_unavailable_001
+  name: module_activity_unavailable_001
+  metadata:
+    ActivityTrackingAvailable: unavailable
 
 # Module: Appointments
 - lookup_key: module_appointments_upsell_001
@@ -73,6 +72,10 @@
   name: module_appoint_available_001
   metadata:
     AppointmentsAvailable: available
+- lookup_key: module_appointments_unavailable_001
+  name: module_appoint_unavailable_001
+  metadata:
+    AppointmentsAvailable: unavailable
 
 # Module: Invites
 - lookup_key: module_invite_users_epd_001
@@ -80,6 +83,11 @@
   metadata:
     CreateClientEnabled: false
     CreateTherapistsEnabled: false
+- lookup_key: module_invite_users_sso_001
+  name: module_invite_users_sso_001
+  metadata:
+    CreateClientEnabled: false
+    CreateTherapistsEnabled: true
 - lookup_key: module_invite_users_manual_001
   name: module_invite_users_manual_001
   metadata:
@@ -95,6 +103,10 @@
   name: module_messages_available_001
   metadata:
     MessagesAvailable: available
+- lookup_key: module_messages_unavailable_001
+  name: module_messages_unavailable_001
+  metadata:
+    MessagesAvailable: unavailable
 
 # Module: Notifications
 - lookup_key: module_notifications_upsell_001
@@ -105,6 +117,14 @@
     AppointRemindAvailable: upsell
     AppointRemindChannelOptions: None,Push
     NotificationsAvailable: upsell
+- lookup_key: module_notifications_confirmations_001
+  name: module_notific_upsell_001
+  metadata:
+    AppointConfirmAvailable: available
+    AppointConfirmChannelOptions: None,Push,PushMail
+    AppointRemindAvailable: upsell
+    AppointRemindChannelOptions: None,Push
+    NotificationsAvailable: available
 - lookup_key: module_notifications_unavailable_001
   name: module_notific_unavailable_001
   metadata:

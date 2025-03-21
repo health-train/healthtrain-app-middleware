@@ -21,6 +21,10 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    App\Service\ProductService:
+        arguments:
+            $rootPath: '%kernel.project_dir%'
+
     Logtail\Monolog\LogtailHandler:
         autoconfigure: true
         arguments:

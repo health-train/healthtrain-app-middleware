@@ -4,11 +4,11 @@ namespace App\RemoteEvent;
 
 use Symfony\Component\RemoteEvent\Attribute\AsRemoteEventConsumer;
 
-#[AsRemoteEventConsumer('stripe')]
-final class StripeWebhookConsumer extends BaseStripeWebhookConsumer
+#[AsRemoteEventConsumer('stripe1test')]
+final class Stripe1TestWebhookConsumer extends BaseStripeWebhookConsumer
 {
     protected function getConfigKey(): string
     {
-        return 'ht2_livemode';
+        return 'ht1_testmode';
     }
 }

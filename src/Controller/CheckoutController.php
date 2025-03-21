@@ -11,41 +11,34 @@ use Symfony\Component\HttpFoundation\Request;
 
 class CheckoutController extends AbstractController
 {
-
-    private $oauthClient;
-
     public function __construct(
         private LoggerInterface $logger,
-        private ProductService $productService
-    ) {
-        $this->logger = $logger;
-        $this->productService = $productService;
-    }
+        private ProductService $productService,
+        private StripeService $stripeService
+    ) {}
 
     public function index(): Response
     {
-        return $this->redirect(url: $_ENV['APP_WEBSITE_PLANS']);
+        return $this->redirect($_ENV['APP_WEBSITE_PLANS']);
     }
-
-    /*
-     * show test subscription plans
-     */
 
     public function plans(Request $request, string $planKey): Response
     {
-        if(!$planKey){
+        if (!$planKey) {
             throw $this->createNotFoundException('Missing parameter: planKey');
         }
         
-        $testmode = $request->query->get('testmode') == true ? true : false;
+        $testmode = (bool)$request->query->get('testmode');
         $plan = $this->productService->getPlan($planKey, $testmode);
-        if(!$plan){
-            throw new \Exception('The plan does not exist of is misconfigured: '. $planKey);
+        
+        if (!$plan) {
+            throw new \Exception('The plan does not exist or is misconfigured: ' . $planKey);
         }
-        $template = "checkout/plan-". $planKey. ".html.twig";
 
-        if(!$this->container->get('twig')->getLoader()->exists($template)){
-            throw new \Exception('The plan template does not exist: '. $planKey);
+        $template = "checkout/plan-" . $planKey . ".html.twig";
+
+        if (!$this->container->get('twig')->getLoader()->exists($template)) {
+            throw new \Exception('The plan template does not exist: ' . $planKey);
         }
 
         return $this->render($template, [
@@ -54,56 +47,52 @@ class CheckoutController extends AbstractController
         ]);
     }
 
-    /*
-     * create checkout session
-     */
-
-    public function create_session(Request $request, StripeService $stripeService): Response
+    public function create_session(Request $request): Response
     {
-        $testmode = $request->request->get('testmode') == true ? true : false;
+        $testmode = (bool)$request->request->get('testmode');
         
-        $quantity = $request->request->get(key: 'quantity');
-        $quantity = (is_numeric($quantity) && $quantity >= 1 && $quantity <= 999) ? $quantity : 1;
+        $quantity = $request->request->get('quantity');
+        $quantity = is_numeric($quantity) && $quantity >= 1 && $quantity <= 999 ? (int)$quantity : 1;
         
         $productId = $request->request->get('productId');
-        // Validation: Check if we have required params
+        
         if (!$productId) {
-            throw new \Exception('Invalid request: Missing productId: '. $productId);
+            throw new \Exception('Invalid request: Missing productId');
         }
 
-        $checkoutSession = $stripeService->createCheckoutSession($productId, $quantity, $testmode);
+        $checkoutSession = $this->stripeService->createCheckoutSession($productId, $quantity, $testmode);
 
-        $this->logger->info('Checkout session started: ' . $checkoutSession->id . ' [productId: ' . $productId . '] [Quantity: ' . $quantity . ']', array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'checkout_session_id' => $checkoutSession->id, 'productId' => $productId, 'quantity' => $quantity, 'testmode' => $testmode));
-        return $this->redirect(url: $checkoutSession->url);
+        // Log after session creation
+        $this->logger->info('Checkout session started', ['sessionId' => $checkoutSession->id, 'productId' => $productId, 'quantity' => $quantity, 'testmode' => $testmode]);
+
+        return $this->redirect($checkoutSession->url);
     }
 
-    /*
-     * session result: cancelled
-     */
     public function session_cancelled(Request $request): Response
     {
-        $testmode = $request->query->get('testmode') == true ? true : false;
-        return $this->render('checkout/cancelled.html.twig', [
-            'testmode' => $testmode,
-        ]);
+        $testmode = (bool)$request->query->get('testmode');
+        return $this->render('checkout/cancelled.html.twig', ['testmode' => $testmode]);
     }
 
-    /*
-     * session result: success
-     */
-    public function session_success(Request $request, string $planKey, string $checkout_session_id, StripeService $stripeService): Response
+    public function session_success(Request $request, string $planKey, string $checkout_session_id): Response
     {
-        $testmode = $request->query->get('testmode') == true ? true : false;
+        $testmode = (bool)$request->query->get('testmode');
         $plan = $this->productService->getPlan($planKey, $testmode);
 
         $stripe = new \Stripe\StripeClient($_ENV[$plan['config']['STRIPE_SECRET_KEY']]);
 
-        // Fetch the Checkout Session to display the JSON result on the success page
+        // Fetch Checkout Session data
+        try {
         $checkoutSession = $stripe->checkout->sessions->retrieve($checkout_session_id);
-        $subscription = $stripe->subscriptions->retrieve(($checkoutSession->subscription));
+            $subscription = $stripe->subscriptions->retrieve($checkoutSession->subscription);
         $customer = $stripe->customers->retrieve($checkoutSession->customer);
         $payment_method = $stripe->paymentMethods->retrieve($subscription->default_payment_method);
+        } catch (\Exception $e) {
+            $this->logger->error('Error retrieving Stripe session', ['exception' => $e]);
+            return $this->render('checkout/error.html.twig', ['message' => 'An error occurred while processing your session']);
+        }
 
+        // Customer data parsing from custom fields
         $customerData = [];
         foreach ($checkoutSession->custom_fields as $custom_field) {
             if ($custom_field->key == "organisation_contact_name") {
@@ -117,10 +106,11 @@ class CheckoutController extends AbstractController
             }
         }
 
-        $stripeService->updateCustomer($customer, $checkoutSession['custom_fields'], $plan);
+        // Update customer in Stripe
+        $this->stripeService->updateCustomer($customer, $checkoutSession['custom_fields'], $plan);
 
         return $this->render('checkout/success.html.twig', [
-            'testmode' => $testmode ?? false,
+            'testmode' => $testmode,
             'plan' => $planKey,
             'customer' => $customer,
             'payment_method' => $payment_method,
@@ -128,49 +118,29 @@ class CheckoutController extends AbstractController
         ]);
     }
 
-    /*
-     * redirect to Stripe billing portal (public)
-     */
     public function portal_redirect(Request $request, string $configKey): Response
     {
-        $testmode = $request->query->get('testmode') == true ? true : false;
-        $prefilled_email = $request->query->get('prefilled_email') ? $request->query->get('prefilled_email') : false;
+        $testmode = (bool)$request->query->get('testmode');
+        $prefilled_email = $request->query->get('prefilled_email', false);
         $config = $this->productService->getConfig($configKey, $testmode);
 
-        $portal_redirect_url = $_ENV[$config['STRIPE_BILLING_URL']];
-        if ($request->query->get('prefilled_email')) {
-            $portal_redirect_url = $portal_redirect_url . '?prefilled_email=' . $prefilled_email;
-        }
-        $this->logger->info('Stripe billing portal public redirect', array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'prefilled_email' => $prefilled_email));
+        $portal_redirect_url = $_ENV[$config['STRIPE_BILLING_URL']] . ($prefilled_email ? '?prefilled_email=' . $prefilled_email : '');
+        
+        $this->logger->info('Redirecting to Stripe billing portal', ['prefilled_email' => $prefilled_email, 'testmode' => $testmode]);
+
         return $this->redirect($portal_redirect_url);
     }
 
-    /*
-     * redirect to Stripe billing portal (logged in)
-     */
     public function portal_redirect_login(Request $request, string $configKey): Response
     {
-        $testmode = $request->request->get('testmode') == true ? true : false;
+        $testmode = (bool)$request->request->get('testmode');
         $config = $this->productService->getConfig($configKey, $testmode);
         $stripe = new \Stripe\StripeClient($_ENV[$config['STRIPE_SECRET_KEY']]);
 
-        // Stripe customer ID
         $stripeCustomerId = $request->request->get('customerId');
-
-        // Stripe customer checkout session
-        // Will be used to get Stripe Customer ID from session
         $stripeCheckoutSessionId = $request->request->get('sessionId');
-
-        // Which channel the Stripe portal logo should direct to. Default: marketing website
-        $redirectChannel = $request->request->get('redirect');
-
-        // Return URL or default: redirect to url
-        $action = $request->request->get('action') ?? 'redirect';
-
-        if (!$stripeCustomerId && !$stripeCheckoutSessionId) {
-            echo 'Invalid request';
-            exit;
-        }
+        $redirectChannel = $request->request->get('redirect', 'default');
+        $action = $request->request->get('action', 'redirect');
 
         if (!$stripeCustomerId && $stripeCheckoutSessionId) {
             $checkout_session = $stripe->session->retrieve($stripeCheckoutSessionId);
@@ -190,7 +160,8 @@ class CheckoutController extends AbstractController
                 'customer' => $stripeCustomerId,
                 'return_url' => $return_url,
             ]);
-            $this->logger->info('Stripe billing portal customer(' . $stripeCustomerId . ') redirect', array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'customer' => $stripeCustomerId, 'return_url' => $return_url, 'action' => $action));
+
+            $this->logger->info('Stripe billing portal redirect', ['customer' => $stripeCustomerId, 'return_url' => $return_url]);
 
             switch ($action) {
                 case "redirect":
@@ -199,9 +170,8 @@ class CheckoutController extends AbstractController
                     return $this->json(['status' => 'ok', 'url' => $portal_session->url]);
             }
         } catch (\Exception $e) {
-            $this->logger->error($e->getMessage(), array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'customer' => $stripeCustomerId, 'body' => ['action' => $action, 'redirect' => $redirectChannel, 'stripeCustomerId' => $stripeCustomerId], 'testmode' => $testmode, 'exception' => $e));
+            $this->logger->error('Error creating billing portal session', ['exception' => $e, 'customer' => $stripeCustomerId]);
             return $this->json(['status' => 'error', 'message' => $e->getMessage()], 400);
         }
-
     }
 }

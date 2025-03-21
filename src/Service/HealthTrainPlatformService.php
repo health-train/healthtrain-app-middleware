@@ -2,13 +2,10 @@
 
 namespace App\Service;
 
-use PhpParser\Node\Expr\BinaryOp\BooleanAnd;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-
-use App\Service\ProductService;
 
 class HealthTrainPlatformService
 {
@@ -23,29 +20,22 @@ class HealthTrainPlatformService
         private HttpClientInterface $client,
         private ProductService $productService,
         private SlackService $slackService
-    ) {
-        $this->productService = $productService;
-        $this->slackService = $slackService;
-    }
+    ) {}
 
-
-    public function createOrg($customer, $plan): bool|array
+    public function createOrg(object $customer, string $plan): bool|array
     {
-        $plan = $this->productService->getPlan($plan);
-        $this->setApiClientCredentials($plan['config']);
-
-        if (empty($this->clientId) || empty($this->clientSecret)) {
-            throw new \RuntimeException('Missing required environment variables: CLIENT_ID, CLIENT_SECRET');
+        $planData = $this->productService->getPlan($plan);
+        if (!$this->setApiClientCredentials($planData['config'])) {
+            throw new \RuntimeException('API credentials ontbreken of onjuist geconfigureerd.');
         }
 
-        // Get auth bearer token
         $token = $this->getAuthToken();
         if (!$token) {
-            throw new \RuntimeException('Error authenticating: Check provided client credentials');
+            throw new \RuntimeException('Authenticatie mislukt: controleer API-credentials.');
         }
 
-        if($this->checkOrganizationExists($customer->metadata->organisation_name)) {
-            $this->logger->error("Organization already exists: ". $customer->metadata->organisation_name, [
+        if ($this->checkOrganizationExists($customer->metadata->organisation_name)) {
+            $this->logger->error("Organisatie bestaat al: {$customer->metadata->organisation_name}", [
                 'type' => 'checkout',
                 'action' => __FUNCTION__,
             ]);
@@ -54,13 +44,12 @@ class HealthTrainPlatformService
 
         $nameFields = $this->extractNameFields($customer->metadata->organisation_contact_name);
 
-        // Prepare request payload
         $payload = [
             "organization" => [
-                "id" => key($plan) === "standalone" ? "htp_standalone_" . random_bytes(10) : null,
+                "id" => $plan === "standalone" ? "htp_standalone_" . bin2hex(random_bytes(5)) : null,
                 "name" => $customer->metadata->organisation_name,
                 "stripeCustomerId" => $customer->id,
-                "externalReference" => $customer->metadata->organisation_kvk ? $customer->metadata->organisation_kvk : null,
+                "externalReference" => $customer->metadata->organisation_kvk ?: null,
                 "country" => "NLD"
             ],
             "therapistAdmin" => [
@@ -72,84 +61,53 @@ class HealthTrainPlatformService
             ]
         ];
 
-        // Call the onboard API
-        try {
-            $response = $this->client->request('POST', $this->baseUrl . $this->endpointOrganizations, [
-                'auth_bearer' => $token,
-                'json' => $payload
-            ]);
-
-            if ($response->getStatusCode() !== 200) {
-                $this->logger->error("Organization onboarding failed: " . $response->getContent(false));
-                $this->slackService->sendMessage(['message' => "Organisatie aanmaken mislukt", 'onboarding' => $payload], 'ht_org');
-                return false;
-            }
-
-            $this->logger->info("Onboarded organisation: {$customer->id}", [
-                'type' => 'checkout',
-                'action' => __FUNCTION__,
-                'customer_id' => $customer->id
-            ]);
-
-            $this->slackService->sendMessage(['message' => "Organisatie aangemaakt ✅", 'onboarding' => $payload], 'ht_org');
-
-            return true;
-        } catch (HttpExceptionInterface | TransportExceptionInterface $e) {
-            $this->logger->error("Onboarding request error: " . $e->getMessage(), [
-                'type' => 'checkout',
-                'action' => __FUNCTION__,
-                'exception' => $e
-            ]);
-            return false;
-        }
+        return $this->sendOnboardingRequest($token, $payload, $customer->id);
     }
 
-    private function extractNameFields($name)
+    private function extractNameFields(string $name): array
     {
-        $nameArr   = explode(' ', trim($name));
-        $firstName = $nameArr[0] ?? null;
-        $lastName  = ($nameArr[1] ?? null) ? implode(' ', array_slice($nameArr, 1)) : null;
-        return ['firstName' => $firstName, 'lastName' => $lastName];
+        $nameParts = explode(' ', trim($name), 2);
+        return [
+            'firstName' => $nameParts[0] ?? '',
+            'lastName'  => $nameParts[1] ?? '',
+        ];
     }
 
-    private function checkOrganizationExists($organizationName)
+    private function checkOrganizationExists(string $organizationName): bool
     {
         $organizations = $this->getOrganizations();
-        $organizationNames = array_column($organizations, 'name');
-        if(!empty($organizationName) && in_array($organizationName, $organizationNames)) return true;
-        return false;
+        return !empty($organizationName) && in_array($organizationName, array_column($organizations, 'name'), true);
     }
 
-    private function getOrganizations(): ?array
+    private function getOrganizations(): array
     {
-
-        // Get auth bearer token
         $token = $this->getAuthToken();
         if (!$token) {
-            throw new \RuntimeException('Error authenticating: Check provided client credentials');
+            throw new \RuntimeException('Authenticatie mislukt bij ophalen organisaties.');
         }
 
         try {
-            $response = $this->client->request('GET', $this->baseUrl . $this->endpointOrganizations, ['auth_bearer' => $token,]);
+            $response = $this->client->request('GET', $this->baseUrl . $this->endpointOrganizations, [
+                'auth_bearer' => $token,
+            ]);
 
             if ($response->getStatusCode() !== 200) {
-                $this->logger->error("getOrganizations failed: " . $response->getContent(false));
-                return null;
+                $this->logger->error("Fout bij ophalen organisaties: " . $response->getContent(false));
+                return [];
             }
 
-            $data = $response->toArray();
-            return $data ?? null;
+            return $response->toArray();
         } catch (HttpExceptionInterface | TransportExceptionInterface $e) {
-            $this->logger->error("getOrganizations error: " . $e->getMessage(), [
+            $this->logger->error("getOrganizations fout: " . $e->getMessage(), [
                 'type' => 'auth',
                 'action' => __FUNCTION__,
                 'exception' => $e
             ]);
-            return null;
+            return [];
         }
     }
 
-    private function getAuthToken(): ?string
+    private function getAuthToken(): string
     {
         try {
             $response = $this->client->request('POST', $this->baseUrl . $this->endpointAuthenticate, [
@@ -160,31 +118,70 @@ class HealthTrainPlatformService
             ]);
 
             if ($response->getStatusCode() !== 200) {
-                $this->logger->error("Authentication failed: " . $response->getContent(false));
-                return null;
+                throw new \RuntimeException("Authenticatie mislukt: " . $response->getContent(false));
             }
 
             $data = $response->toArray();
-            return $data['token'] ?? null;
+            return $data['token'] ?? throw new \RuntimeException('Geen token ontvangen van API.');
         } catch (HttpExceptionInterface | TransportExceptionInterface $e) {
-            $this->logger->error("Auth request error: " . $e->getMessage(), [
+            $this->logger->error("Authenticatie mislukt: " . $e->getMessage(), [
                 'type' => 'auth',
                 'action' => __FUNCTION__,
                 'exception' => $e
             ]);
-            return null;
+            throw new \RuntimeException('Authenticatie verzoek mislukt.', 0, $e);
         }
     }
 
-    private function setApiClientCredentials($config): bool
+    private function setApiClientCredentials(array $config): bool
     {
-
-        if (!$config['HT_API_BASEURL'] || !$config['HT_API_CLIENT_ID'] || !$config['HT_API_CLIENT_SECRET']) {
+        if (empty($config['HT_API_BASEURL']) || empty($config['HT_API_CLIENT_ID']) || empty($config['HT_API_CLIENT_SECRET'])) {
             return false;
         }
-        $this->baseUrl = $_ENV[$config['HT_API_BASEURL']];
-        $this->clientId = $_ENV[$config['HT_API_CLIENT_ID']];
-        $this->clientSecret = $_ENV[$config['HT_API_CLIENT_SECRET']];
-        return true;
+
+        $this->baseUrl = $_ENV[$config['HT_API_BASEURL']] ?? '';
+        $this->clientId = $_ENV[$config['HT_API_CLIENT_ID']] ?? '';
+        $this->clientSecret = $_ENV[$config['HT_API_CLIENT_SECRET']] ?? '';
+
+        return !empty($this->baseUrl) && !empty($this->clientId) && !empty($this->clientSecret);
+    }
+
+    private function sendOnboardingRequest(string $token, array $payload, string $customerId): bool
+    {
+        try {
+            $response = $this->client->request('POST', $this->baseUrl . $this->endpointOrganizations, [
+                'auth_bearer' => $token,
+                'json' => $payload
+            ]);
+
+            if ($response->getStatusCode() !== 200) {
+                $this->logger->error("Onboarding mislukt: " . $response->getContent(false));
+                $this->slackService->sendMessage([
+                    'message' => "Organisatie aanmaken mislukt ❌",
+                    'onboarding' => $payload
+                ], 'ht_org');
+                return false;
+            }
+
+            $this->logger->info("Organisatie aangemaakt: {$customerId}", [
+                'type' => 'checkout',
+                'action' => __FUNCTION__,
+                'customer_id' => $customerId
+            ]);
+
+            $this->slackService->sendMessage([
+                'message' => "Organisatie aangemaakt ✅",
+                'onboarding' => $payload
+            ], 'ht_org');
+
+            return true;
+        } catch (HttpExceptionInterface | TransportExceptionInterface $e) {
+            $this->logger->error("Fout bij organisatie aanmaken: " . $e->getMessage(), [
+                'type' => 'checkout',
+                'action' => __FUNCTION__,
+                'exception' => $e
+            ]);
+            return false;
+        }
     }
 }

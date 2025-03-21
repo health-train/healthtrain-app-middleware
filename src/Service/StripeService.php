@@ -1,36 +1,34 @@
 <?php
 
-// src/Service/StripeService.php
 namespace App\Service;
 
 use Psr\Log\LoggerInterface;
 use App\Service\ProductService;
+use App\Service\SlackService;
+use App\Service\MailPlusService;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class StripeService
 {
-
     public function __construct(
         private UrlGeneratorInterface $urlgenerator,
         private LoggerInterface $logger,
-        private ProductService $productService
+        private ProductService $productService,
+        private SlackService $slackService,
+        private MailplusService $mailPlusService,
+        private HealthTrainPlatformService $healthTrainPlatformService
     ) {
-
-        // Initialize
-        if (!$_ENV['STRIPE_SECRET_KEY']) {
-            echo 'Missing required env variable';
-            exit;
-        }
-
-        $this->urlgenerator = $urlgenerator;
-        $this->logger = $logger;
-        $this->productService = $productService;
     }
 
-    public function createCheckoutSession($productKey, $quantity = 1, $testmode = true)
+    // Now accepts dynamic secret key per plan
+    private function getStripeClient(string $stripeSecretKey): \Stripe\StripeClient
     {
+        return new \Stripe\StripeClient($stripeSecretKey);
+    }
 
+    public function createCheckoutSession(string $productKey, int $quantity = 1, bool $testmode = true)
+    {
         if (!$productKey) {
             throw new HttpException(\Symfony\Component\HttpFoundation\Response::HTTP_INTERNAL_SERVER_ERROR, 'Missing required parameters');
         }
@@ -45,13 +43,18 @@ class StripeService
             throw new \Exception('Invalid plan: ' . $product['healthtrain']['plan']);
         }
 
-        $stripe = new \Stripe\StripeClient($_ENV[$plan['config']['STRIPE_SECRET_KEY']]);
+        // Retrieve the correct Stripe Secret Key from the plan
+        $stripeSecretKey = $_ENV[$plan['config']['STRIPE_SECRET_KEY']] ?? '';
+        if (empty($stripeSecretKey)) {
+            throw new \Exception('Missing Stripe Secret Key for plan: ' . $plan['config']['STRIPE_SECRET_KEY']);
+        }
+
+        $stripe = $this->getStripeClient($stripeSecretKey);
         return $stripe->checkout->sessions->create($this->buildCheckout($stripe, $productKey, $product, $plan, $quantity));
     }
 
-    private function buildCheckout($stripe, $productKey, $product, $plan, $quantity)
+    private function buildCheckout($stripe, string $productKey, array $product, array $plan, int $quantity): array
     {
-
         // Validation: Check if priceId is available
         $stripePrice = $stripe->prices->retrieve($product['stripe']['priceId']);
         if (!$stripePrice) {
@@ -64,29 +67,15 @@ class StripeService
         }
 
         // Config: Adjustable quantity
-        $adjustable_quantity_config = [];
-        if ($stripePriceData->adjust_quantity == "true") {
-            $adjustable_quantity_config = [
-                'enabled' => $stripePriceData->adjust_quantity ?? true,
-                'maximum' => $stripePriceData->adjust_quantity_max ?? 75,
-                'minimum' => $stripePriceData->adjust_quantity_min ?? 1
-            ];
-        }
+        $adjustable_quantity_config = $this->buildAdjustableQuantityConfig($stripePriceData);
+
         // Config: Return URL for cancelled checkouts
-        $cancelled_return_url = $this->urlgenerator->generate('checkout_plans', ['planKey' => $product['healthtrain']['plan']], UrlGeneratorInterface::ABSOLUTE_URL);
-        if ($plan['testmode']) {
-            $cancelled_return_url .= "?testmode=true";
-        }
+        $cancelled_return_url = $this->generateCancelReturnUrl($product, $plan);
 
         // Config: Return URL for successful checkouts
-        $success_params = ['planKey' => $product['healthtrain']['plan'], 'checkout_session_id' => '{CHECKOUT_SESSION_ID}'];
-        if ($plan['testmode']) {
-            $success_params['testmode'] = true;
-        }
+        $success_return_url = $this->generateSuccessReturnUrl($product, $plan);
 
-        $success_return_url = $this->urlgenerator->generate('checkout_create_session_success', $success_params, UrlGeneratorInterface::ABSOLUTE_URL);
-
-        // Config: Subscription line item
+        // Subscription line item and other configurations
         $line_item_subscription = [
             'price' => $stripePrice->id,
             'quantity' => $quantity,
@@ -94,7 +83,55 @@ class StripeService
             'adjustable_quantity' => $adjustable_quantity_config
         ];
 
-        // Config: Trial period
+        $subscription_data_config = $this->buildSubscriptionDataConfig($stripePriceData, $productKey);
+        $custom_text = $this->buildCustomText($stripePriceData);
+
+        return [
+            'success_url' => urldecode($success_return_url),
+            'cancel_url' => urldecode($cancelled_return_url),
+            'mode' => 'subscription',
+            'line_items' => [$line_item_subscription],
+            'subscription_data' => $subscription_data_config,
+            'consent_collection' => ['terms_of_service' => "required"],
+            'billing_address_collection' => "required",
+            'payment_method_configuration' => $product['stripe']['paymentMethods'],
+            'phone_number_collection' => ['enabled' => true],
+            'custom_fields' => $this->getCustomFields(),
+            'locale' => $stripePriceData->locale ?? 'nl',
+            'allow_promotion_codes' => $stripePriceData->allow_promotion_codes ?? false,
+            'custom_text' => $custom_text
+        ];
+    }
+
+    private function buildAdjustableQuantityConfig($stripePriceData): array
+    {
+        return $stripePriceData->adjust_quantity == "true" ? [
+            'enabled' => $stripePriceData->adjust_quantity ?? true,
+            'maximum' => $stripePriceData->adjust_quantity_max ?? 75,
+            'minimum' => $stripePriceData->adjust_quantity_min ?? 1
+        ] : [];
+    }
+
+    private function generateCancelReturnUrl(array $product, array $plan): string
+    {
+        $cancelled_return_url = $this->urlgenerator->generate('checkout_plans', ['planKey' => $product['healthtrain']['plan']], UrlGeneratorInterface::ABSOLUTE_URL);
+        if ($plan['testmode']) {
+            $cancelled_return_url .= "?testmode=true";
+        }
+        return $cancelled_return_url;
+    }
+
+    private function generateSuccessReturnUrl(array $product, array $plan): string
+    {
+        $success_params = ['planKey' => $product['healthtrain']['plan'], 'checkout_session_id' => '{CHECKOUT_SESSION_ID}'];
+        if ($plan['testmode']) {
+            $success_params['testmode'] = true;
+        }
+        return $this->urlgenerator->generate('checkout_create_session_success', $success_params, UrlGeneratorInterface::ABSOLUTE_URL);
+    }
+
+    private function buildSubscriptionDataConfig($stripePriceData, string $productKey): array
+    {
         $subscription_data_config = [];
         if ($stripePriceData->trial_period == "true") {
             $subscription_data_config = [
@@ -103,84 +140,69 @@ class StripeService
             ];
         }
         $subscription_data_config['metadata'] = ['htStripeProductId' => $productKey];
-
-        // Config: Custom text
-        $custom_text = [];
-        if ($stripePriceData->custom_text_after_submit) {
-            $custom_text['after_submit'] = [
-                'message' => $stripePriceData->custom_text_after_submit
-            ];
-        }
-        if ($stripePriceData->custom_text_submit) {
-            $custom_text['submit'] = [
-                'message' => $stripePriceData->custom_text_submit
-            ];
-        }
-        if ($stripePriceData->custom_text_terms) {
-            $custom_text['terms_of_service_acceptance'] = [
-                'message' => $stripePriceData->custom_text_terms
-            ];
-        }
-
-        $checkout_params = [
-            'success_url' => urldecode($success_return_url),
-            'cancel_url' => urldecode($cancelled_return_url),
-            'mode' => 'subscription',
-            'line_items' => [
-                $line_item_subscription
-            ],
-            'subscription_data' => $subscription_data_config,
-            'consent_collection' => [
-                'terms_of_service' => "required"
-            ],
-            'billing_address_collection' => "required",
-            'payment_method_configuration' => $product['stripe']['paymentMethods'],
-            'phone_number_collection' => [
-                'enabled' => true
-            ],
-            'custom_fields' => [
-                [
-                    'key' => "organisation_contact_name",
-                    'label' => [
-                        'custom' => "Naam contactpersoon",
-                        'type' => "custom"
-                    ],
-                    'type' => "text",
-                ],
-                [
-                    'key' => "organisation_name",
-                    'label' => [
-                        'custom' => "Bedrijfsnaam",
-                        'type' => "custom"
-                    ],
-                    'type' => "text",
-                ],
-                // [
-                //     'key' => "organisation_kvk",
-                //     'label' => [
-                //         'custom' => "KVK-nummer",
-                //         'type' => "custom"
-                //     ],
-                //     'type' => "numeric",
-                //     'numeric' => [
-                //         'maximum_length' => 8,
-                //         'minimum_length' => 8
-                //     ],
-                //     'optional' => true
-                // ]
-            ],
-            'locale' => $stripePriceData->locale ?? 'nl',
-            'allow_promotion_codes' => $stripePriceData->allow_promotion_codes ?? false,
-            'custom_text' => $custom_text
-        ];
-
-        return $checkout_params;
+        return $subscription_data_config;
     }
 
-    public function updateCustomer($customer, $data, $plan)
+    private function buildCustomText($stripePriceData): array
     {
-        $stripe = new \Stripe\StripeClient($_ENV[$plan['config']['STRIPE_SECRET_KEY']]);
+        $custom_text = [];
+        if ($stripePriceData->custom_text_after_submit) {
+            $custom_text['after_submit'] = ['message' => $stripePriceData->custom_text_after_submit];
+        }
+        if ($stripePriceData->custom_text_submit) {
+            $custom_text['submit'] = ['message' => $stripePriceData->custom_text_submit];
+        }
+        if ($stripePriceData->custom_text_terms) {
+            $custom_text['terms_of_service_acceptance'] = ['message' => $stripePriceData->custom_text_terms];
+        }
+        return $custom_text;
+    }
 
+    private function getCustomFields(): array
+    {
+        return [
+            [
+                'key' => "organisation_contact_name",
+                'label' => ['custom' => "Naam contactpersoon", 'type' => "custom"],
+                'type' => "text",
+            ],
+            [
+                'key' => "organisation_name",
+                'label' => ['custom' => "Bedrijfsnaam", 'type' => "custom"],
+                'type' => "text",
+            ]
+        ];
+    }
+
+    public function updateCustomer($customer, array $data, array $plan)
+    {
+        // Retrieve Stripe secret key based on the plan
+        $stripeSecretKey = $_ENV[$plan['config']['STRIPE_SECRET_KEY']] ?? '';
+        if (empty($stripeSecretKey)) {
+            throw new \Exception('Missing Stripe Secret Key for plan: ' . $plan['config']['STRIPE_SECRET_KEY']);
+        }
+
+        $stripe = $this->getStripeClient($stripeSecretKey);
+
+        $customerData = $this->extractCustomerData($data);
+
+        try {
+            $body = [
+                'name' => $customerData['organisation_name'] ?? $customer->name,
+                'metadata' => $customerData
+            ];
+            $customer = $stripe->customers->update($customer->id, $body);
+            $this->logger->info('Stripe customer updated ' . $customer->id, ['properties' => ['type' => 'checkout', 'action' => __FUNCTION__], 'customer' => $customer, 'body' => $body, 'testmode' => $plan['testmode']]);
+            return $customer;
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage(), ['properties' => ['type' => 'checkout', 'action' => __FUNCTION__], 'customer' => $customer, 'body' => $body, 'testmode' => $plan['testmode'], 'exception' => $e]);
+        }
+
+        return false;
+    }
+
+    private function extractCustomerData(array $data): array
+    {
         $customerData = [];
         foreach ($data as $custom_field) {
             if ($custom_field->key == "organisation_contact_name") {
@@ -190,41 +212,64 @@ class StripeService
                 $customerData['organisation_name'] = $custom_field->text->value ?? 'Not set';
             }
             if ($custom_field->key == "organisation_kvk") {
-                $customerData['organisation_kvk'] = $custom_field->numeric->value ?? 'Not set';
+                $customerData['organisation_kvk'] = $custom_field->text->value ?? 'Not set';
             }
         }
-
-        // Update customer to save contact name to customer metadata
-        try {
-            $body = [
-                'name' => $customerData['organisation_name'] ?? $customer->name,
-                'metadata' => $customerData
-            ];
-            $customer = $stripe->customers->update($customer->id, $body);
-            $this->logger->info('Stripe customer updated ' . $customer->id, array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'customer' => $customer, 'body' => $body, 'testmode' => $plan['testmode']));
-            return $customer;
-        } catch (\Exception $e) {
-            $this->logger->error($e->getMessage(), array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'customer' => $customer, 'body' => $body, 'testmode' => $plan['testmode'], 'exception' => $e));
-        }
-
-        return false;
+        return $customerData;
     }
 
-    public function retrieveSubscriptionProductId($subscriptionId, $plan): bool
+    public function handleCheckoutSessionCompleted(string $checkoutSessionId, array $config, bool $livemode): void
     {
-        $stripe = new \Stripe\StripeClient($_ENV[$plan['config']['STRIPE_SECRET_KEY']]);
+        $stripeClient = new \Stripe\StripeClient($_ENV[$config['STRIPE_SECRET_KEY']]);
 
-        try {
-            $subscriptionData = $stripe->subscriptions->retrieve($subscriptionId);
-            if ($subscriptionData->metadata->productId) {
-                return $subscriptionData->metadata->productId;
-            } else {
-                throw new \Exception('Subscription does not contain productId metadata.');
-            }
-        } catch (\Exception $e) {
-            $this->logger->error($e->getMessage(), array('properties' => array('type' => 'checkout', 'action' => __FUNCTION__), 'body' => ['subscription' => $subscriptionId], 'testmode' => $plan['testmode'], 'exception' => $e));
+        $this->logger->info('Handling checkout session', [
+            'checkout_session_id' => $checkoutSessionId,
+            'testmode' => !$livemode
+        ]);
+
+        $checkoutSession = $stripeClient->checkout->sessions->retrieve($checkoutSessionId);
+
+        if (empty($checkoutSession) || !isset($checkoutSession['customer'])) {
+            $this->logger->warning('No customer id found in checkout session', [
+                'checkout_session_id' => $checkoutSessionId
+            ]);
+            $this->slackService->sendMessage([
+                'message' => "Nieuwe klant aangemeld (🚨 Afhandeling niet doorlopen)"
+            ]);
+            return;
         }
 
-        return false;
+        $customer = $stripeClient->customers->retrieve($checkoutSession['customer']);
+        if(empty($customer)) return;
+        if(!empty($checkoutSession['$subscription'])) $subscription = $stripeClient->subscriptions->retrieve($checkoutSession['subscription']);
+        if(empty($subscription)) return;
+        $subscriptionProductId = $subscription->metadata->htStripeProductId ?: null;
+
+        if (!empty($subscriptionProductId)) {
+            $product = $this->productService->getProduct($subscriptionProductId);
+            $plan = $this->productService->getPlan($product['healthtrain']['plan']);
+
+            // Trigger automation for customer contact details
+            if (isset($product['mailplus']) && !empty($product['mailplus'])) {
+                $this->mailPlusService->triggerAutomation($customer, $product);
+            }
+
+            if ($plan['organisationOnboarding'] == true) {
+                $this->healthTrainPlatformService->createOrg($customer, $product['healthtrain']['plan']);
+            }
+        }
+
+        // Send alerts
+        $this->slackService->sendMessage([
+            'message' => "Stripe checkout afgerond ✅",
+            'customer' => $customer ?: null,
+            'subscription' => $subscription ?: null,
+            'testmode' => !$livemode
+        ]);
+
+        $this->logger->info('Checkout session success', [
+            'checkout_session_id' => $checkoutSession['id'],
+            'testmode' => !$livemode
+        ]);
     }
 }

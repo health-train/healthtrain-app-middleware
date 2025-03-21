@@ -98,7 +98,7 @@ video_embed_sproutvideo:
         domain: '%domain%'
 
 invite_ht_prod:
-    path: /i/{invitationId}/{userOrganisationConnectionId}/
+    path: /i/{invitationId?}/{userOrganisationConnectionId?}
     controller: App\Controller\InviteController::invite_ht_prod
     methods: GET|HEAD
     host: "{subdomain}.{domain}"
@@ -110,7 +110,7 @@ invite_ht_prod:
         domain: "%domain%"
 
 invite_ht_at:
-    path: /ht_at/{invitationId}/{userOrganisationConnectionId}/
+    path: /at/{invitationId?}/{userOrganisationConnectionId?}
     controller: App\Controller\InviteController::invite_ht_at
     methods: GET|HEAD
     host: "{subdomain}.{domain}"
@@ -122,7 +122,7 @@ invite_ht_at:
         domain: "%domain%"
 
 invite_ht_it:
-    path: /ht_it/{invitationId}/{userOrganisationConnectionId}/
+    path: /it/{invitationId?}/{userOrganisationConnectionId?}
     controller: App\Controller\InviteController::invite_ht_it
     methods: GET|HEAD
     host: "{subdomain}.{domain}"
@@ -134,7 +134,7 @@ invite_ht_it:
         domain: "%domain%"
 
 invite_htger_prod:
-    path: /ig/{invitationId}/{userOrganisationConnectionId}/
+    path: /ig/{invitationId}/{userOrganisationConnectionId}
     controller: App\Controller\InviteController::invite_htger_prod
     methods: GET|HEAD
     host: "{subdomain}.{domain}"
@@ -146,7 +146,7 @@ invite_htger_prod:
         domain: "%domain%"
 
 invite_htger_prod_legacy:
-    path: /Invite/{invitationId}/{userOrganisationConnectionId}/
+    path: /Invite/{invitationId}/{userOrganisationConnectionId}
     controller: App\Controller\InviteController::invite_htger_prod
     methods: GET|HEAD
     host: "{subdomain}.{domain}"
@@ -158,7 +158,7 @@ invite_htger_prod_legacy:
         domain: "%domain%"
 
 invite_htger_at:
-    path: /htger_at/{invitationId}/{userOrganisationConnectionId}/
+    path: /htger_at/{invitationId}/{userOrganisationConnectionId}
     controller: App\Controller\InviteController::invite_htger_at
     methods: GET|HEAD
     host: "{subdomain}.{domain}"
@@ -182,6 +182,23 @@ webhooks:
 #     path: /test/stripe
 #     controller: App\Controller\DefaultController::stripeTest
 #     methods: GET|HEAD
+
+test_onboard:
+    path: /test/onboard
+    controller: App\Controller\DefaultController::onboardTest
+    methods: GET|HEAD
+
+invites_index:
+    path: /
+    controller: App\Controller\InviteController::index
+    methods: GET|HEAD
+    host: "{subdomain}.{domain}"
+    defaults:
+        domain: '%domain%'
+        subdomain: "invite"
+    requirements:
+        subdomain: "invite|i"
+        domain: "%domain%"
 
 index:
     path: /

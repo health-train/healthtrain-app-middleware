@@ -1,0 +1,66 @@
+---
+htp_live_pCiBce4AF6XXzH2mn:
+  healthtrain:
+    plan: spotonmedics
+  stripe:
+    priceId: price_1QZaG0AU7J6SUXutWSzBW6WD
+    paymentMethods: pmc_1QNGRLAU7J6SUXutucJVChnS
+  mailplus:
+    automationId: bc0a8795-536c-432b-83ef-bcb46944eb0f
+
+htp_test_H8oYvathg6fv4XF2u:
+  healthtrain:
+    plan: spotonmedics
+  stripe:
+    priceId: price_1QD4l5AU7J6SUXutqQV2xIkg
+    paymentMethods: pmc_1QFP2jAU7J6SUXutnqqCXyO3
+  mailplus:
+    automationId: 61fa1a1c-ba87-484d-8890-39868d538989
+
+htp_live_g8pyaCarYzqGHcQYUpwY:
+  healthtrain:
+    plan: intramed-pilot
+  stripe:
+    priceId: "price_1R4sG2CQZsgE0X5Z3CQWDN2C"
+    paymentMethods: "pmc_1QFLFoCQZsgE0X5ZuMJ5WBXQ"
+  mailplus: false
+
+htp_test_3hZ4hzPBCsmsXLmjTebZ:
+  healthtrain:
+    plan: intramed-pilot
+  stripe:
+    priceId: price_1R4IF2CQZsgE0X5Z6zqadeFe
+    paymentMethods: pmc_1QFLFpCQZsgE0X5Z7dZy75Nb
+  mailplus: false
+
+htp_live_yXq6sCHEKvHfAYkrqWCv:
+  healthtrain:
+    plan: standalone
+  stripe:
+    priceId: price_1R1YziAU7J6SUXuteXP3MBRG
+    paymentMethods: pmc_1QNGRLAU7J6SUXutucJVChnS
+  mailplus: false
+
+htp_test_yXq6sCHEKvHfAYkrqWCv:
+  healthtrain:
+    plan: standalone
+  stripe:
+    priceId: price_1R1ZeBAU7J6SUXutGcxZcf2H
+    paymentMethods: pmc_1QFP2jAU7J6SUXutnqqCXyO3
+  mailplus: false
+
+hwo_live_syK2z4Y9Qz8VQYraA:
+  healthtrain:
+    plan: hwo
+  stripe:
+    priceId: price_1QgnqxAU7J6SUXut3qZzE0KU
+    paymentMethods: pmc_1QNGRLAU7J6SUXutucJVChnS
+  mailplus: false
+
+hwo_test_syK2z4Y9Qz8VQYraA:
+  healthtrain:
+    plan: hwo
+  stripe:
+    priceId: price_1Qgn0bAU7J6SUXutnjXsDfIF
+    paymentMethods: pmc_1QFP2jAU7J6SUXutnqqCXyO3
+  mailplus: false

@@ -3,19 +3,13 @@ framework:
     routing:
       stripe:
         service: App\Webhook\StripeRequestParser
-        secret: '%env(STRIPE_HT2_LIVE_WEBHOOK_SECRET)%'
+        secret: '%env(STRIPE_HT2_LIVEMODE_WEBHOOK_SECRET)%'
       stripetest:
         service: App\Webhook\StripeRequestParser
-        secret: '%env(STRIPE_HT2_TESTMODE_WEBHOOK_SECRET)%'
-      stripe2:
-        service: App\Webhook\StripeRequestParser
-        secret: '%env(STRIPE_HT2_LIVE_WEBHOOK_SECRET)%'
-      stripe2test:
-        service: App\Webhook\StripeRequestParser
-        secret: '%env(STRIPE_HT2_TESTMODE_WEBHOOK_SECRET)%'        
+        secret: '%env(STRIPE_HT2_TESTMODE_WEBHOOK_SECRET)%'     
       stripe1:
         service: App\Webhook\StripeRequestParser
-        secret: '%env(STRIPE_HT1_LIVE_WEBHOOK_SECRET)%'
+        secret: '%env(STRIPE_HT1_LIVEMODE_WEBHOOK_SECRET)%'
       stripe1test:
         service: App\Webhook\StripeRequestParser
         secret: '%env(STRIPE_HT1_TESTMODE_WEBHOOK_SECRET)%'

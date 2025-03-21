@@ -11,7 +11,7 @@
     <div class="max-w-xl">
       <h1 class="text-base font-medium text-ht-purple-60">Betaling gelukt</h1>
       <p class="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">Welkom {{ customer_data.organisation_name | default('bij HealthTrain') }}</p>
-		<p class="mt-2 text-lg text-gray-500">Bekijk je e-mail inbox voor een bevestiging met de volgende aansluitstappen.</p>
+		<p class="mt-2 text-lg text-gray-500">{{ success_message | default('Bekijk je e-mail inbox voor een bevestiging met de volgende aansluitstappen.') }}</p>
 	</div>
 
     <div class="mt-10 border-t border-gray-200">

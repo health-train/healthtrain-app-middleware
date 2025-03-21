@@ -1,0 +1,61 @@
+---
+spotonmedics:
+  livemode:
+    config: ht2_live
+    identifier: HealthTrain SOM
+    products:
+      - htp_live_pCiBce4AF6XXzH2mn
+    organisationOnboarding: false
+    testmode: false
+  testmode:
+    config: ht2_spotonmedics_testmode
+    identifier: HealthTrain SOM Testmode
+    products:
+      - htp_test_H8oYvathg6fv4XF2u
+    organisationOnboarding: true
+    testmode: true
+intramed-pilot:
+  livemode:
+    config: ht1_live
+    products:
+      - htp_live_g8pyaCarYzqGHcQYUpwY
+    identifier: HealthTrain Intramed Pilot
+    organisationOnboarding: false
+    testmode: false
+  testmode:
+    config: ht1_intramed_testmode
+    products:
+      - htp_test_3hZ4hzPBCsmsXLmjTebZ
+    identifier: HealthTrain Intramed Pilot Testmode
+    organisationOnboarding: false
+    testmode: true
+standalone:
+  livemode:
+    config: ht2_live
+    products:
+      - htp_live_yXq6sCHEKvHfAYkrqWCv
+    identifier: HealthTrain Standalone
+    organisationOnboarding: false
+    testmode: false
+  testmode:
+    config: ht2_testmode
+    products:
+      - htp_test_yXq6sCHEKvHfAYkrqWCv
+    identifier: HealthTrain Standalone Testmode
+    organisationOnboarding: false
+    testmode: true
+hwo:
+  livemode:
+    config: ht2_live
+    products:
+      - hwo_live_syK2z4Y9Qz8VQYraA
+    identifier: Huiswerkoefeningen.nl
+    organisationOnboarding: false
+    testmode: false
+  testmode:
+    config: ht2_testmode
+    products:
+      - hwo_test_syK2z4Y9Qz8VQYraA
+    identifier: Huiswerkoefeningen.nl Testmode
+    organisationOnboarding: false
+    testmode: true

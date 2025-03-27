@@ -48,8 +48,7 @@ class VideosController extends AbstractController
 
             // Set the cached content with a TTL (Time-to-Live), e.g., 1 hour
             $cachedResponse->set($content);
-            $cachedResponse->tag('embed_sproutvideo');
-            // $cachedResponse->expiresAfter(3600 * 24 * 7); // Cache for 1 hour
+            $cachedResponse->expiresAfter(3600 * 24 * 7); // 7 days
             $cache->save($cachedResponse);
         }
 

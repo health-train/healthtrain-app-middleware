@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Service\HealthTrainPlatformService;
 use App\Service\SlackService;
 use App\Service\StripeService;
+use App\Service\ProductService;
+use PhpParser\Node\Scalar\MagicConst\File;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -15,13 +17,13 @@ class DefaultController extends AbstractController
         return $this->redirect($_ENV['APP_WEBSITE']);
     }
 
-    public function slackTest(SlackService $slackService): Response
+    public function slackTest(): Response
     {
         // $slackService->sendMessage(['message' => 'Test message']);
         return $this->redirect($_ENV['APP_WEBSITE']);
     }
 
-    public function stripeTest(StripeService $stripeService): Response
+    public function stripeTest(): Response
     {
 
         // $stripe = new \Stripe\StripeClient($_ENV['STRIPE_SECRET_KEY_TESTMODE']);
@@ -34,9 +36,12 @@ class DefaultController extends AbstractController
         return $this->redirect($_ENV['APP_WEBSITE']);
     }
 
-    public function onboardTest(HealthTrainPlatformService $healthTrainPlatformService): Response
+    public function onboardTest(ProductService $productservice): Response
     {
 
+
+        // $product = $productservice->getProduct('htp_live_pCiBce4AF6XXzH2mn');
+        // print_r($product); exit;
         // $stripe = new \Stripe\StripeClient($_ENV['STRIPE_HT1_TESTMODE_SECRET_KEY']);
     
         // $customer = $stripe->customers->retrieve('cus_RymYxgo0nXCeJW');
@@ -45,8 +50,32 @@ class DefaultController extends AbstractController
         // print_r($org);
 
         // exit;
- 
+
         return $this->redirect($_ENV['APP_WEBSITE']);
     }
     
+    public function hashtest(): Response
+    {
+        // $json = (array) json_decode(file_get_contents('../config/healthtrain/hash.json'));
+        // unset($json['old_hwo']);
+        // unset($json['startdate']);
+        // unset($json['enddate']);
+
+        // $externalId = "129876";
+        // $salt = "abcdefghijklmnop1234567890";
+        // $sso_key = "fJBQd53a!bz*!D";
+        // $timestamp = "1742999661";
+
+
+        // // $hashInput = implode("", $json) . $externalId . $timestamp. $sso_key . 'abcdefghijklmnop1234567890';
+        // $hashInput = implode("", $json) . $sso_key . $timestamp . $salt;
+        // $hash = hash('sha512', $hashInput);
+        // echo "91111jelle+support@healthtrain.nlJelleJouwsma1222111222333k.ebbenhorst@outlook.comKoenLuucclientfJBQd53a!bz*!D1742999661abcdefghijklmnop1234567890\n<br>";
+        // echo "hashInput: <br>\n";
+        // print_r($hashInput. "\n\n");
+        // echo "<br><br>calculated hash: <br>\n";
+        // print_r($hash); exit;
+
+        return $this->redirect($_ENV['APP_WEBSITE']);
+    }
 }

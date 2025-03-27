@@ -21,7 +21,6 @@ class StripeService
     ) {
     }
 
-    // Now accepts dynamic secret key per plan
     private function getStripeClient(string $stripeSecretKey): \Stripe\StripeClient
     {
         return new \Stripe\StripeClient($stripeSecretKey);
@@ -35,18 +34,18 @@ class StripeService
 
         $product = $this->productService->getProduct($productKey);
         if (!$product) {
-            throw new \Exception('Invalid product: ' . $productKey);
+            throw new \Exception("Invalid product: {$productKey}");
         }
 
-        $plan = $this->productService->getPlan($product['healthtrain']['plan'], $testmode);
+        $plan = $this->productService->findPlanByProductId($productKey, $testmode);
         if (!$plan) {
-            throw new \Exception('Invalid plan: ' . $product['healthtrain']['plan']);
+            throw new \Exception("Can't find plan for product: {$productKey}");
         }
-
+        
         // Retrieve the correct Stripe Secret Key from the plan
-        $stripeSecretKey = $_ENV[$plan['config']['STRIPE_SECRET_KEY']] ?? '';
+        $stripeSecretKey = $_ENV[$plan[key($plan)]['config']['STRIPE_SECRET_KEY']] ?? '';
         if (empty($stripeSecretKey)) {
-            throw new \Exception('Missing Stripe Secret Key for plan: ' . $plan['config']['STRIPE_SECRET_KEY']);
+            throw new \Exception("Missing Stripe Secret Key for plan: {$plan['config']['STRIPE_SECRET_KEY']}");
         }
 
         $stripe = $this->getStripeClient($stripeSecretKey);
@@ -55,6 +54,7 @@ class StripeService
 
     private function buildCheckout($stripe, string $productKey, array $product, array $plan, int $quantity): array
     {
+        // print_r($plan);exit;
         // Validation: Check if priceId is available
         $stripePrice = $stripe->prices->retrieve($product['stripe']['priceId']);
         if (!$stripePrice) {
@@ -70,10 +70,10 @@ class StripeService
         $adjustable_quantity_config = $this->buildAdjustableQuantityConfig($stripePriceData);
 
         // Config: Return URL for cancelled checkouts
-        $cancelled_return_url = $this->generateCancelReturnUrl($product, $plan);
+        $cancelled_return_url = $this->generateCancelReturnUrl($plan);
 
         // Config: Return URL for successful checkouts
-        $success_return_url = $this->generateSuccessReturnUrl($product, $plan);
+        $success_return_url = $this->generateSuccessReturnUrl($plan);
 
         // Subscription line item and other configurations
         $line_item_subscription = [
@@ -112,19 +112,21 @@ class StripeService
         ] : [];
     }
 
-    private function generateCancelReturnUrl(array $product, array $plan): string
+    private function generateCancelReturnUrl(array $plan): string
     {
-        $cancelled_return_url = $this->urlgenerator->generate('checkout_plans', ['planKey' => $product['healthtrain']['plan']], UrlGeneratorInterface::ABSOLUTE_URL);
-        if ($plan['testmode']) {
+        $planKey = array_key_first($plan);
+        $cancelled_return_url = $this->urlgenerator->generate('checkout_plans', ['planKey' => $planKey], UrlGeneratorInterface::ABSOLUTE_URL);
+        if ($plan[$planKey]['testmode'] == true) {
             $cancelled_return_url .= "?testmode=true";
         }
         return $cancelled_return_url;
     }
 
-    private function generateSuccessReturnUrl(array $product, array $plan): string
+    private function generateSuccessReturnUrl(array $plan): string
     {
-        $success_params = ['planKey' => $product['healthtrain']['plan'], 'checkout_session_id' => '{CHECKOUT_SESSION_ID}'];
-        if ($plan['testmode']) {
+        $planKey = array_key_first($plan);
+        $success_params = ['planKey' => $planKey, 'checkout_session_id' => '{CHECKOUT_SESSION_ID}'];
+        if ($plan[$planKey]['testmode'] == true) {
             $success_params['testmode'] = true;
         }
         return $this->urlgenerator->generate('checkout_create_session_success', $success_params, UrlGeneratorInterface::ABSOLUTE_URL);
@@ -218,6 +220,9 @@ class StripeService
         return $customerData;
     }
 
+    /*
+     * TODO: Save fulfilment status of each order to prevent duplicate handling
+     */
     public function handleCheckoutSessionCompleted(string $checkoutSessionId, array $config, bool $livemode): void
     {
         $stripeClient = new \Stripe\StripeClient($_ENV[$config['STRIPE_SECRET_KEY']]);
@@ -246,8 +251,7 @@ class StripeService
         $subscriptionProductId = $subscription->metadata->htStripeProductId ?: null;
 
         if (!empty($subscriptionProductId)) {
-            $product = $this->productService->getProduct($subscriptionProductId);
-            $plan = $this->productService->getPlan($product['healthtrain']['plan']);
+            $plan = $this->productService->findPlanByProductId($subscriptionProductId, !$livemode);
 
             // Trigger automation for customer contact details
             if (isset($product['mailplus']) && !empty($product['mailplus'])) {
@@ -255,7 +259,7 @@ class StripeService
             }
 
             if ($plan['organisationOnboarding'] == true) {
-                $this->healthTrainPlatformService->createOrg($customer, $product['healthtrain']['plan']);
+                $this->healthTrainPlatformService->createOrg($customer, array_key_first($plan));
             }
         }
 

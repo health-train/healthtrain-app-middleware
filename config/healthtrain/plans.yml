@@ -38,7 +38,7 @@ intramed-pilot:
             organisationOnboarding: false
           stripe:
             priceId: "price_1R4sG2CQZsgE0X5Z3CQWDN2C"
-            paymentMethods: "pmc_1QFLFoCQZsgE0X5ZuMJ5WBXQ"
+            paymentMethods: "pmc_1R7GRgCQZsgE0X5ZQE4nyBKx"
           mailplus: false
   testmode:
     config: ht1_intramed_testmode
@@ -50,7 +50,7 @@ intramed-pilot:
           organisationOnboarding: false
         stripe:
           priceId: price_1R4IF2CQZsgE0X5Z6zqadeFe
-          paymentMethods: pmc_1QFLFpCQZsgE0X5Z7dZy75Nb
+          paymentMethods: pmc_1R7GSICQZsgE0X5Z4JZnXcKr
         mailplus: false
 
 standalone:

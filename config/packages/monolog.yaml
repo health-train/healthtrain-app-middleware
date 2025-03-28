@@ -39,7 +39,7 @@ when@prod:
             main:
                 type: stream
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
-                level: debug
+                level: info
                 channels: ["!event"]
             better_stack:
                 type: service

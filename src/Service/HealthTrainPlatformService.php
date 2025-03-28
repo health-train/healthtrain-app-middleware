@@ -148,6 +148,7 @@ class HealthTrainPlatformService
 
     private function sendOnboardingRequest(string $token, array $payload, string $customerId): bool
     {
+
         try {
             $response = $this->client->request('POST', $this->baseUrl . $this->endpointOrganizations, [
                 'auth_bearer' => $token,

@@ -1,13 +1,14 @@
 <?php
 
 namespace App\Service;
-
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class SlackService
 {
     public function __construct(
         private readonly HttpClientInterface $slackClient,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -18,7 +19,7 @@ class SlackService
             "stripe" => $this->formatStripeMessage($data),
             default => ['text' => $data['message'] ?? 'Geen bericht'],
         };
-
+        $this->logger->info('Slack sendMessage', ['format' => $format]);
         $this->slackClient->request('POST', '', [
             'json' => $slackData,
         ]);

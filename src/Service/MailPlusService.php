@@ -24,6 +24,7 @@ class MailPlusService
     public function triggerAutomation($customer, $product): bool
     {
         $OAuthRequest = new OAuth1Request($_ENV['SPOTLER_CONSUMER_KEY'], $_ENV['SPOTLER_CONSUMER_SECRET']);
+        $this->logger->info('MailPlus triggerAutomation');
 
         // 🟢 Contact toevoegen of bijwerken
         $mailPlusContactParams = [

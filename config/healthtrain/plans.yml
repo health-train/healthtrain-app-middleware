@@ -34,12 +34,12 @@ intramed-pilot:
     testmode: false
     products:
       htp_live_g8pyaCarYzqGHcQYUpwY:
-          healthtrain:
-            organisationOnboarding: false
-          stripe:
-            priceId: "price_1R4sG2CQZsgE0X5Z3CQWDN2C"
-            paymentMethods: "pmc_1R7GRgCQZsgE0X5ZQE4nyBKx"
-          mailplus: false
+        healthtrain:
+          organisationOnboarding: false
+        stripe:
+          priceId: "price_1R4sG2CQZsgE0X5Z3CQWDN2C"
+          paymentMethods: "pmc_1R7GRgCQZsgE0X5ZQE4nyBKx"
+        mailplus: false
   testmode:
     config: ht1_intramed_testmode
     identifier: HealthTrain Intramed Pilot Testmode

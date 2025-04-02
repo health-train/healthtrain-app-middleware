@@ -48,7 +48,8 @@ class VideosController extends AbstractController
 
             // Set the cached content with a TTL (Time-to-Live), e.g., 1 hour
             $cachedResponse->set($content);
-            $cachedResponse->expiresAfter(3600 * 24 * 7); // 7 days
+            $cache_video_days = 30;
+            $cachedResponse->expiresAfter(3600 * 24 * $cache_video_days);
             $cache->save($cachedResponse);
         }
 

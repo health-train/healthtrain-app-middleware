@@ -36,22 +36,18 @@ class DefaultController extends AbstractController
         return $this->redirect($_ENV['APP_WEBSITE']);
     }
 
-    public function onboardTest(ProductService $productservice): Response
+    public function onboardTest(ProductService $productService, StripeService $stripeService): Response
     {
 
 
-        // $product = $productservice->getProduct('htp_live_pCiBce4AF6XXzH2mn');
-        // print_r($product); exit;
-        // $stripe = new \Stripe\StripeClient($_ENV['STRIPE_HT1_TESTMODE_SECRET_KEY']);
-    
-        // $customer = $stripe->customers->retrieve('cus_RymYxgo0nXCeJW');
-        // // print_r($customer);
-        // $org = $healthTrainPlatformService->createOrg($customer, 'intramed-pilot', true);
-        // print_r($org);
+        $checkout = "cs_test_a1DyPx1bbkCaDGz3yATJ5N3CX8IzNiDeqZoL4AEia35hyqIFSRVkIT5XiN";
+        print_r($checkout);
 
-        // exit;
+        $stripeService->handleCheckoutSessionCompleted($checkout, $productService->getConfig("ht1_testmode"), false);
 
-        return $this->redirect($_ENV['APP_WEBSITE']);
+        exit;
+
+        // return $this->redirect($_ENV['APP_WEBSITE']);
     }
     
     public function hashtest(): Response

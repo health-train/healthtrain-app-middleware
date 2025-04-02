@@ -41,7 +41,7 @@ class SlackService
                     "fields" => [
                         [
                             "type" => "mrkdwn",
-                            "text" => "*Bedrijfsnaam*\n" . ($data['onboarding']['organization']['name'] ?? "Onbekend")
+                            "text" => "*Bedrijfsnaam*\n" . ($data['organization']['name'] ?? "Onbekend")
                         ],
                         [
                             "type" => "mrkdwn",
@@ -81,16 +81,12 @@ class SlackService
                         [
                             "type" => "mrkdwn",
                             "text" => "*Product*\n" . 
-                                ($subscription['plan']['nickname'] ?? "Onbekend") . 
-                                " [" . ($subscription['price']['lookup_key'] ?? "Onbekend") . "]"
+                                ($subscription['plan']['nickname'] ?? ($subscription['plan']['product'])) . 
+                                " [" . ($subscription['price']['lookup_key'] ?? ($subscription['price']['id'])) . "]"
                         ],
-                        isset($subscription) ?: [
+                        [
                             "type" => "mrkdwn",
                             "text" => "*Licenties*\n" . ($subscription['quantity'] ?? "Onbekend")
-                        ],
-                        isset($subscription) ?: [
-                            "type" => "mrkdwn",
-                            "text" => "*Status*\n" . ($subscription['status'] ?? "Onbekend")
                         ]
                     ]
                 ],
@@ -103,7 +99,7 @@ class SlackService
                             "text" => ["type" => "plain_text", "text" => "Open Stripe Customer"],
                             "url" => "https://dashboard.stripe.com/customers/" . ($data['customer']['id'] ?? "#")
                         ],
-                        isset($subscription) ?: [
+                        [
                             "type" => "button",
                             "text" => ["type" => "plain_text", "text" => "Open Stripe Subscription"],
                             "url" => "https://dashboard.stripe.com/subscriptions/" . ($subscription['id'] ?? "#")

@@ -245,31 +245,44 @@ class StripeService
         }
 
         $customer = $stripeClient->customers->retrieve($checkoutSession['customer']);
-        if(empty($customer)) return;
-        if(!empty($checkoutSession['$subscription'])) $subscription = $stripeClient->subscriptions->retrieve($checkoutSession['subscription']);
-        if(empty($subscription)) return;
+        if (empty($customer)) {
+            $this->logger->warning('No customer found: {$checkoutSession["customer"]}', [
+                'customer' => $checkoutSession['customer']
+            ]);
+            echo "No customer found";
+            return;
+        }
+        $subscription = $stripeClient->subscriptions->retrieve($checkoutSession['subscription']);
+        if (empty($subscription)) {
+            $this->logger->warning('No subscription found: {$checkoutSession["subscription"]}', [
+                'customer' => $checkoutSession['customer'],
+                'subscription' => $checkoutSession['subscription']
+            ]);
+            echo "No subscription found";
+            return;
+        }
         $subscriptionProductId = $subscription->metadata->htStripeProductId ?: null;
 
         if (!empty($subscriptionProductId)) {
-            $plan = $this->productService->findPlanByProductId($subscriptionProductId, !$livemode);
+            $product = $this->productService->getProduct($subscriptionProductId);
 
             // Trigger automation for customer contact details
             if (isset($product['mailplus']) && !empty($product['mailplus'])) {
                 $this->mailPlusService->triggerAutomation($customer, $product);
             }
 
-            if ($plan['organisationOnboarding'] == true) {
+            if ($product['healthtrain']['organisationOnboarding'] == true) {
                 $this->healthTrainPlatformService->createOrg($customer, array_key_first($plan));
             }
         }
 
         // Send alerts
         $this->slackService->sendMessage([
-            'message' => "Stripe checkout afgerond ✅",
+            'message' => "Stripe checkout afgehandeld ✅",
             'customer' => $customer ?: null,
             'subscription' => $subscription ?: null,
             'testmode' => !$livemode
-        ]);
+        ], "stripe");
 
         $this->logger->info('Checkout session success', [
             'checkout_session_id' => $checkoutSession['id'],

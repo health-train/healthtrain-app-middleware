@@ -264,6 +264,7 @@ class StripeService
         $subscriptionProductId = $subscription->metadata->htStripeProductId ?: null;
 
         if (!empty($subscriptionProductId)) {
+            $plan = $this->productService->findPlanByProductId($subscriptionProductId, !$livemode);
             $product = $this->productService->getProduct($subscriptionProductId);
 
             // Trigger automation for customer contact details

@@ -10,8 +10,8 @@
     ViewAllClientsEnabled: true
 
 # EPD config: SpotOnMedics FysioOne
-- lookup_key: epd_spotonmedics_001
-  name: epd_spotonmedics_001
+- lookup_key: epd_spotonmedics_pro_001
+  name: epd_spotonmedics_pro_001
   metadata:
     ClientDetailsDeeplinkAvailable: unavailable
     ClientDetailsDeeplinkEnabled: false
@@ -20,8 +20,8 @@
     ViewAllClientsEnabled: true
 
 # EPD config: Fysiomanager
-- lookup_key: epd_fysiomanager_001
-  name: epd_fysiomanager_001
+- lookup_key: epd_fysiomanager_exercises_001
+  name: epd_fysiomanager_exercises_001
   metadata:
     ClientDetailsDeeplinkAvailable: available
     ClientDetailsDeeplinkEnabled: true
@@ -30,13 +30,13 @@
     ViewAllClientsEnabled: true
 
 # EPD config: Flux
-- lookup_key: epd_flux_001
-  name: epd_flux_001
+- lookup_key: epd_flux_exercises_001
+  name: epd_flux_exercises_001
   metadata:
     ClientDetailsDeeplinkAvailable: available
     ClientDetailsDeeplinkEnabled: true
     EPDType: Flux
-    ProductName: "HealthTrain Platform i.c.m. flux"
+    ProductName: "HealthTrain Exercises i.c.m. flux"
     ViewAllClientsEnabled: true
 
 # EPD config: Standalone

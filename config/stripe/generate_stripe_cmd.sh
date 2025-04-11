@@ -3,6 +3,7 @@
 # Default values
 RUN_MODE=false
 INPUT_FILE="example.yml"  # Default filename
+API_KEY="[setfrom1p]"
 
 # Parse flags
 while [[ "$#" -gt 0 ]]; do
@@ -61,6 +62,7 @@ while IFS= read -r obj; do
     cmd=("stripe" "entitlements" "features" "create")
     cmd+=("--lookup-key=$lookup_key")
     cmd+=("--name=$name")
+    cmd+=("--api-key=$API_KEY")
 
     # Check if the object contains metadata and process it
     metadata=$(echo "$obj" | jq -c '.metadata // {}')

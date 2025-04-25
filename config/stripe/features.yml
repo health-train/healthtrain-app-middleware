@@ -1,10 +1,12 @@
 ---
 # EPD config: Intramed
-- lookup_key: epd_intramed_001
-  name: epd_intramed_001
+- lookup_key: epd_intramed_002
+  name: epd_intramed_002
   metadata:
     ClientDetailsDeeplinkAvailable: unavailable
     ClientDetailsDeeplinkEnabled: false
+    ClientDetailsAutologinAvailable: available
+    ClientDetailsAutologinEnabled: false
     EPDType: Intramed
     ProductName: "HealthTrain Platform i.c.m. Intramed Compleet"
     ViewAllClientsEnabled: true
@@ -40,11 +42,13 @@
     ViewAllClientsEnabled: true
 
 # EPD config: Standalone
-- lookup_key: epd_standalone_001
-  name: epd_standalone_001
+- lookup_key: epd_standalone_002
+  name: epd_standalone_002
   metadata:
     ClientDetailsDeeplinkAvailable: available
     ClientDetailsDeeplinkEnabled: false
+    ClientDetailsAutologinAvailable: available
+    ClientDetailsAutologinEnabled: false
     EPDType: StandAlone
     ProductName: "HealthTrain Platform Standalone"
     ViewAllClientsEnabled: true
@@ -109,45 +113,45 @@
     MessagesAvailable: unavailable
 
 # Module: Notifications
-- lookup_key: module_notifications_upsell_001
-  name: module_notific_upsell_001
+- lookup_key: module_notifications_upsell_002
+  name: module_notific_upsell_002
   metadata:
     AppointConfirmAvailable: upsell
-    AppointConfirmChannelOptions: None,Push
+    AppointConfirmChannelOptions: None,OnlyPush
     AppointRemindAvailable: upsell
-    AppointRemindChannelOptions: None,Push
+    AppointRemindChannelOptions: None,OnlyPush
     NotificationsAvailable: upsell
-- lookup_key: module_notifications_confirmations_001
-  name: module_notific_upsell_001
+- lookup_key: module_notifications_confirmations_002
+  name: module_notific_upsell_002
   metadata:
     AppointConfirmAvailable: available
-    AppointConfirmChannelOptions: None,Push,PushMail
+    AppointConfirmChannelOptions: None,OnlyPush
     AppointRemindAvailable: upsell
-    AppointRemindChannelOptions: None,Push
+    AppointRemindChannelOptions: None,OnlyPush
     NotificationsAvailable: available
-- lookup_key: module_notifications_unavailable_001
-  name: module_notific_unavailable_001
+- lookup_key: module_notifications_unavailable_002
+  name: module_notific_unavailable_002
   metadata:
     AppointConfirmAvailable: unavailable
-    AppointConfirmChannelOptions: None,Push
+    AppointConfirmChannelOptions: None,OnlyPush
     AppointRemindAvailable: unavailable
-    AppointRemindChannelOptions: None,Push
+    AppointRemindChannelOptions: None,OnlyPush
     NotificationsAvailable: unavailable
-- lookup_key: module_notifications_pushmail_001
-  name: module_notific_pushmail_001
+- lookup_key: module_notifications_pushmail_002
+  name: module_notific_pushmail_002
   metadata:
     AppointConfirmAvailable: available
-    AppointConfirmChannelOptions: None,Push,PushMail
+    AppointConfirmChannelOptions: None,OnlyPush,PushAndMail
     AppointRemindAvailable: available
-    AppointRemindChannelOptions: None,Push,PushMail
+    AppointRemindChannelOptions: None,OnlyPush,PushAndMail
     NotificationsAvailable: available
-- lookup_key: module_notifications_pushmailsms_001
-  name: module_notific_pushmailsms_001
+- lookup_key: module_notifications_pushmailsms_002
+  name: module_notific_pushmailsms_002
   metadata:
     AppointConfirmAvailable: available
-    AppointConfirmChannelOptions: None,Push,PushMail,PushMailSMS
+    AppointConfirmChannelOptions: None,OnlyPush,PushAndMail
     AppointRemindAvailable: available
-    AppointRemindChannelOptions: None,Push,PushMail,PushMailSMS
+    AppointRemindChannelOptions: None,OnlyPush,PushAndMail,PushOrSms,PushAndMailOrSms
     NotificationsAvailable: available
 
 # Module: Protocols
